@@ -8,6 +8,12 @@ import java.awt.*;
 public class App extends JFrame {
     WelcomeView welcomeView;
 
+    public JMenuBar menuBar;
+
+    JMenu settingsMenu;
+
+    public JMenuItem closeProjectItem, newProjectItem;
+
     public App() {
         setSize(800, 500);
         setTitle("CodeLite");
@@ -18,10 +24,24 @@ public class App extends JFrame {
 
     public void init() {
         welcomeView = new WelcomeView(this);
+
+        menuBar = new JMenuBar();
+        settingsMenu = new JMenu("Settings", true);
+
+        newProjectItem = new JMenuItem("Open new Project");
+        closeProjectItem = new JMenuItem("Close project");
     }
 
     public void addComponent(){
         this.add(welcomeView);
+
+
+        menuBar.add(settingsMenu);
+        settingsMenu.add(newProjectItem);
+        settingsMenu.add(closeProjectItem);
+
+        setJMenuBar(menuBar);
+
 
         setVisible(true);
     }
