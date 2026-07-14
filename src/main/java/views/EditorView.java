@@ -1,21 +1,21 @@
 package views;
 
+import app.App;
 import config.Setting;
 import enums.ETheme;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import app.App;
-import org.fife.ui.rsyntaxtextarea.*;
-
 import javax.swing.*;
-import java.io.IOException;
-import java.io.InputStream;
 
-public class EditorView extends RSyntaxTextArea{
+public class EditorView extends RSyntaxTextArea {
 
     private final RTextScrollPane editorScrollPane;
 
     private final App app;
+
+    private boolean modified = false;
 
     public EditorView(App app) {
         super();
@@ -26,6 +26,23 @@ public class EditorView extends RSyntaxTextArea{
         this.setRoundedSelectionEdges(true);
 
         editorScrollPane = new RTextScrollPane(this);
+
+        getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                modified = true;
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                modified = true;
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                modified = true;
+            }
+        });
     }
 
     public void setColorScheme(ETheme colorScheme) {
@@ -35,5 +52,13 @@ public class EditorView extends RSyntaxTextArea{
 
     public JScrollPane getContentPanel() {
         return editorScrollPane;
+    }
+
+    public boolean getIsModified() {
+        return modified;
+    }
+
+    public void setIsModified(boolean modified) {
+        this.modified = modified;
     }
 }

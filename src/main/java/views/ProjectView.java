@@ -52,6 +52,7 @@ public class ProjectView extends JPanel {
 
         folderIcon = new ImageIcon(Objects.requireNonNull
                 (ProjectView.class.getResource("/icons/folder_icon_24.png")));
+
         refreshTree();
     }
 
@@ -201,5 +202,4 @@ public class ProjectView extends JPanel {
     public FileNode getSelectedFileNode() {
         return (FileNode) projectTree.getLastSelectedPathComponent();
     }
-
 }

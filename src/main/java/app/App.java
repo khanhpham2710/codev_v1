@@ -25,7 +25,11 @@ public class App extends JFrame {
     JMenu settingsMenu, colorSchemeItem;
     JMenuItem closeProjectItem, newProjectItem,
             monokaiItem, eclipseItem, nightItem, redItem, blueItem, purpleItem,
+            autoSaveItem,
             exitItem;
+
+    boolean autoSave = false;
+    Timer autoSaveTimer;
 
     Font editorFont;
 
@@ -61,7 +65,7 @@ public class App extends JFrame {
         rightSplitPanel.add(toolPanel, BorderLayout.NORTH);
 
         saveFileButton = new JButton("Save");
-        saveFileButton.setEnabled(true);
+        saveFileButton.setEnabled(false);
         saveFileButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 14));
         saveFileButton.setBackground(new Color(67, 175, 21));
         saveFileButton.addActionListener(e -> projectView.saveFile());
@@ -80,12 +84,35 @@ public class App extends JFrame {
         blueItem = new JMenuItem("Amplified Blue");
         purpleItem = new JMenuItem("Hollow Purple");
 
+        autoSaveItem = new JMenuItem("Auto save : Off");
         exitItem = new JMenuItem("Exit " + Setting.APP_NAME);
 
         newProjectItem.addActionListener(e -> {
             projectView.getProjectTree().removeAll();
             projectView.getRoot().removeAllChildren();
             projectView.openProject();
+        });
+
+        autoSaveTimer = new Timer(5000, e -> {   // every 5 seconds
+            if (projectView.getSelectedFileNode() != null && editorView.canUndo()) {
+                projectView.saveFile();
+            }
+        });
+        autoSaveTimer.setRepeats(true);
+
+        autoSaveItem.addActionListener(e -> {
+            if (autoSave) {
+                autoSave = false;
+                autoSaveItem.setText("Auto save : Off");
+                saveFileButton.setVisible(true);
+                autoSaveTimer.stop();
+            }
+            else {
+                autoSave = true;
+                autoSaveItem.setText("Auto save : On");
+                saveFileButton.setVisible(false);
+                autoSaveTimer.start();
+            }
         });
 
 
@@ -131,6 +158,8 @@ public class App extends JFrame {
 
         settingsMenu.addSeparator();
         settingsMenu.add(colorSchemeItem);
+        settingsMenu.addSeparator();
+        settingsMenu.add(autoSaveItem);
         settingsMenu.addSeparator();
 
         colorSchemeItem.add(monokaiItem);
