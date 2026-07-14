@@ -16,6 +16,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -122,6 +124,26 @@ public class ProjectView extends JPanel {
             }
         });
 
+    }
+
+    public void saveFile() {
+        FileNode node = (FileNode) projectTree.getLastSelectedPathComponent();
+        if (node == null) {
+            JOptionPane.showMessageDialog(null, "No file selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        node.setContent(app.getEditorView().getText());
+
+        File savedFile = new File(node.getFilePath());
+        try (FileWriter writer = new FileWriter(savedFile)) {
+            writer.write(node.getContent());
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error saving file: " + savedFile.getName() + "\n" + e.getMessage(),
+                    "Save Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void setEditorContent(EditorView editorView, FileNode node) {

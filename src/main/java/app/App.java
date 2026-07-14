@@ -19,6 +19,8 @@ public class App extends JFrame {
     JPanel rightSplitPanel;
     JPanel toolPanel;
 
+    JButton saveFileButton;
+
     JMenuBar menuBar;
     JMenu settingsMenu, colorSchemeItem;
     JMenuItem closeProjectItem, newProjectItem,
@@ -57,6 +59,12 @@ public class App extends JFrame {
 
         rightSplitPanel.add(editorView.getContentPanel(), BorderLayout.CENTER);
         rightSplitPanel.add(toolPanel, BorderLayout.NORTH);
+
+        saveFileButton = new JButton("Save");
+        saveFileButton.setEnabled(true);
+        saveFileButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 14));
+        saveFileButton.setBackground(new Color(67, 175, 21));
+        saveFileButton.addActionListener(e -> projectView.saveFile());
 
         menuBar = new JMenuBar();
         settingsMenu = new JMenu("Settings", true);
@@ -133,6 +141,8 @@ public class App extends JFrame {
         colorSchemeItem.add(purpleItem);
 
         settingsMenu.add(exitItem);
+
+        toolPanel.add(saveFileButton);
 
         this.add(rootPanel, BorderLayout.CENTER);
         this.add(welcomeView);
