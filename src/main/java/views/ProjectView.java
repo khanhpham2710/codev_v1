@@ -57,7 +57,7 @@ public class ProjectView extends JPanel {
     }
 
     public void openProject() {
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = new JFileChooser(projectPath);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int result = chooser.showOpenDialog(null);
