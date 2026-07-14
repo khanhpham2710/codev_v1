@@ -63,8 +63,11 @@ public class App extends JFrame {
         exitItem = new JMenuItem("Exit Codev");
 
         newProjectItem.addActionListener(e -> {
-            launch();
+            projectView.getProjectTree().removeAll();
+            projectView.getRoot().removeAllChildren();
+            projectView.openProject();
         });
+
 
         closeProjectItem.addActionListener(e -> {
             setContentPane(welcomeView);
