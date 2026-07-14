@@ -12,8 +12,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -30,6 +34,8 @@ public class ProjectView extends JPanel {
 
     ArrayList<FileNode> projectFiles = new ArrayList<>();
     String projectPath = null;
+
+    JPopupMenu popupMenu;
 
     Icon folderIcon;
 
@@ -48,11 +54,13 @@ public class ProjectView extends JPanel {
 
         folderIcon = new ImageIcon(Objects.requireNonNull
                 (ProjectView.class.getResource("/icons/folder_icon_24.png")));
+
         refreshTree();
+        createPopupMenu();
     }
 
     public void openProject() {
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = new JFileChooser(projectPath);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int result = chooser.showOpenDialog(null);
@@ -99,6 +107,218 @@ public class ProjectView extends JPanel {
             }
         }
 
+    }
+
+    public void initActionListeners() {
+        projectTree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                try {
+                    FileNode node = (FileNode) projectTree.getLastSelectedPathComponent();
+                    if (node.getIsDirectory()) {
+                        app.getSaveFileButton().setEnabled(false);
+                    } else {
+                        setEditorContent(app.getEditorView(), node);
+                        app.setEnabled(true);
+                        FileNode parentNode = (FileNode) node.getParent();
+                        app.setCurrentFileParentPath(parentNode.getFilePath());
+                    }
+                } catch (NullPointerException pointerException) {
+                    System.out.println("No File Selected");
+                } catch (ClassCastException classCastException) {
+                    System.out.println("Exception");
+                }
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    int row = projectTree.getClosestRowForLocation(e.getX(), e.getY());
+                    projectTree.setSelectionRow(row);
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+
+        });
+
+    }
+
+
+    private void createPopupMenu() {
+        popupMenu = new JPopupMenu();
+
+        JMenuItem addFileItem = new JMenuItem("New File");
+        JMenuItem addFolderItem = new JMenuItem("New Folder");
+        JMenuItem deleteItem = new JMenuItem("Delete");
+        JMenuItem renameItem = new JMenuItem("Rename");
+
+        addFileItem.addActionListener(e -> createFile(false));
+        addFolderItem.addActionListener(e -> createFile(true));
+        deleteItem.addActionListener(e -> deleteFile());
+        renameItem.addActionListener(e -> renameFile());
+
+        popupMenu.add(addFileItem);
+        popupMenu.add(addFolderItem);
+        popupMenu.add(deleteItem);
+        popupMenu.add(renameItem);
+    }
+
+    private void createFile(boolean isDirectory) {
+        FileNode selectedNode = (FileNode) projectTree.getLastSelectedPathComponent();
+
+        FileNode parentNode;
+        if (selectedNode == null) {
+            parentNode = root;
+        } else if (selectedNode.getIsDirectory()) {
+            parentNode = selectedNode;
+        } else {
+            parentNode = (FileNode) selectedNode.getParent();
+            if (parentNode == null) parentNode = root;
+        }
+
+        File parentFile = (parentNode == root && projectPath != null)
+                ? new File(projectPath)
+                : new File(parentNode.getFilePath());
+
+        if (isDirectory) {
+            String folderName = JOptionPane.showInputDialog(null, "Enter folder name");
+            if (folderName == null || folderName.trim().isEmpty()) return;
+
+            File newFolder = new File(parentFile, folderName);
+            if (!newFolder.mkdir()) {
+                JOptionPane.showMessageDialog(null, "Unable to create folder",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            FileNode newNode = new FileNode(folderName, null, newFolder.getAbsolutePath(), true);
+            insertAndRefresh(parentNode, newNode);
+
+        } else {
+            String fileName = JOptionPane.showInputDialog(null, "Enter file name");
+            if (fileName == null || fileName.trim().isEmpty()) return;
+
+            File newFile = new File(parentFile, fileName);
+            try {
+                if (newFile.createNewFile()) {
+                    FileNode newNode = new FileNode(fileName, "", newFile.getAbsolutePath(), false);
+                    projectFiles.add(newNode);
+                    insertAndRefresh(parentNode, newNode);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Unable to create file",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (IOException exception) {
+                JOptionPane.showMessageDialog(null, exception.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void insertAndRefresh(FileNode parentNode, FileNode newNode) {
+        DefaultTreeModel model = (DefaultTreeModel) projectTree.getModel();
+        int index = parentNode.getChildCount();
+        model.insertNodeInto(newNode, parentNode, index);
+        projectTree.expandPath(new javax.swing.tree.TreePath(parentNode.getPath()));
+    }
+
+    private void deleteFile() {
+        FileNode selectedNode = (FileNode) projectTree.getLastSelectedPathComponent();
+        try {
+            File selectedFile = new File(selectedNode.getFilePath());
+            if (selectedFile.exists()) {
+                boolean deleted;
+                if (selectedFile.isDirectory()) deleted = deleteDirectory(selectedFile);
+                else deleted = selectedFile.delete();
+
+
+                if (deleted) {
+                    DefaultTreeModel model = (DefaultTreeModel) projectTree.getModel();
+                    model.removeNodeFromParent(selectedNode);
+                    model.reload();
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                            "Could not delete the file/folder",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        } catch (NullPointerException e) {
+            JOptionPane.showMessageDialog(null, "Cannot delete opened project", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    private boolean deleteDirectory(File directory) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+        return directory.delete();
+    }
+
+    private void renameFile() {
+        FileNode selectedNode = (FileNode) projectTree.getLastSelectedPathComponent();
+
+        if (selectedNode.getIsDirectory()) JOptionPane.showMessageDialog(null, "Cannot rename folders", "Error", JOptionPane.ERROR_MESSAGE);
+        else {
+
+            String newName = JOptionPane.showInputDialog(null, "Enter new name", selectedNode.getNodeName());
+            if (newName == null || newName.trim().isEmpty()) {
+                return;
+            }
+
+            File currentFile = new File(selectedNode.getFilePath());
+            File parentFile = currentFile.getParentFile();
+            File newFile = new File(parentFile, newName);
+
+            if (currentFile.renameTo(newFile)) {
+
+                selectedNode.setNodeName(newName);
+                selectedNode.setFilePath(newFile.getAbsolutePath());
+
+
+                DefaultTreeModel model = (DefaultTreeModel) projectTree.getModel();
+                model.nodeChanged(selectedNode);
+
+                refreshTree();
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Could not rename the file",
+                        "Rename Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    public void saveFile() {
+        FileNode node = (FileNode) projectTree.getLastSelectedPathComponent();
+        if (node == null) {
+            JOptionPane.showMessageDialog(null, "No file selected.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        node.setContent(app.getEditorView().getText());
+
+        File savedFile = new File(node.getFilePath());
+        try (FileWriter writer = new FileWriter(savedFile)) {
+            writer.write(node.getContent());
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error saving file: " + savedFile.getName() + "\n" + e.getMessage(),
+                    "Save Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void setEditorContent(EditorView editorView, FileNode node) {
+        editorView.setText(node.getContent());
+        app.setTitle(Setting.APP_NAME +  " - " + node.getNodeName());
     }
 
     public void refreshTree() {
@@ -151,5 +371,4 @@ public class ProjectView extends JPanel {
     public FileNode getSelectedFileNode() {
         return (FileNode) projectTree.getLastSelectedPathComponent();
     }
-
 }

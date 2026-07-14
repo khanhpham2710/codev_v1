@@ -2,6 +2,7 @@ package views;
 
 import app.App;
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
+import config.Setting;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +27,7 @@ public class WelcomeView extends JPanel implements ComponentListener {
         this.setLayout(null);
         this.setOpaque(false);
 
-        titleLabel = new JLabel("{CodeLite}");
+        titleLabel = new JLabel("{" + Setting.APP_NAME + "}");
         titleLabel.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.BOLD, 52));
         titleLabel.setForeground(Color.WHITE);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
