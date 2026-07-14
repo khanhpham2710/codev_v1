@@ -12,6 +12,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
@@ -99,6 +101,32 @@ public class ProjectView extends JPanel {
             }
         }
 
+    }
+
+    public void initActionListeners() {
+        projectTree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                try {
+                    FileNode node = (FileNode) projectTree.getLastSelectedPathComponent();
+                    if (!node.getIsDirectory()) {
+                        setEditorContent(app.getEditorView(), node);
+                        FileNode parentNode = (FileNode) node.getParent();
+                    }
+                } catch (NullPointerException pointerException) {
+                    System.out.println("No File Selected");
+                } catch (ClassCastException classCastException) {
+                    System.out.println("Exception");
+                }
+            }
+        });
+
+    }
+
+    public void setEditorContent(EditorView editorView, FileNode node) {
+        editorView.setText(node.getContent());
+        app.setTitle(Setting.APP_NAME +  " - " + node.getNodeName());
     }
 
     public void refreshTree() {

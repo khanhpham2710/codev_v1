@@ -43,6 +43,7 @@ public class App extends JFrame {
         projectView = new ProjectView(this);
         projectView.setMinimumSize(new Dimension(200, 0));
         projectView.init();
+        projectView.initActionListeners();
 
         editorView = new EditorView(this);
 
