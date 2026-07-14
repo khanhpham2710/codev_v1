@@ -9,6 +9,8 @@ import java.io.InputStream;
 public class Setting {
     private static final Setting INSTANCE = new Setting();
 
+    public static final String APP_NAME = "Codev";
+
     private Theme monokaiTheme;
     private Theme eclipseTheme;
     private Theme nightTheme;

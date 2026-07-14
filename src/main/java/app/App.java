@@ -1,6 +1,7 @@
 package app;
 
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
+import config.Setting;
 import enums.ETheme;
 import views.EditorView;
 import views.ProjectView;
@@ -28,7 +29,7 @@ public class App extends JFrame {
 
     public App() {
         setSize(800, 500);
-        setTitle("CodeLite");
+        setTitle(Setting.APP_NAME);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
@@ -70,7 +71,7 @@ public class App extends JFrame {
         blueItem = new JMenuItem("Amplified Blue");
         purpleItem = new JMenuItem("Hollow Purple");
 
-        exitItem = new JMenuItem("Exit Codev");
+        exitItem = new JMenuItem("Exit " + Setting.APP_NAME);
 
         newProjectItem.addActionListener(e -> {
             projectView.getProjectTree().removeAll();
