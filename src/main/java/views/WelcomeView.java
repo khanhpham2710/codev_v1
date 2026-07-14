@@ -42,6 +42,11 @@ public class WelcomeView extends JPanel implements ComponentListener {
 
         openProjectButton.setBackground(new Color(12, 100, 181));
 
+        openProjectButton.addActionListener(e -> {
+            app.getProjectView().openProject();
+            app.launch();
+        });
+
         this.add(titleLabel);
         this.add(mottoLabel);
         this.add(openProjectButton);
