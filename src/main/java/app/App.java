@@ -31,6 +31,8 @@ public class App extends JFrame {
     boolean autoSave = false;
     Timer autoSaveTimer;
 
+    String currentFileParentPath;
+
     Font editorFont;
 
     public App() {
@@ -200,4 +202,12 @@ public class App extends JFrame {
     }
 
     public Font getEditorFont() { return editorFont; };
+
+    public JButton getSaveFileButton(){
+        return saveFileButton;
+    }
+
+    public void setCurrentFileParentPath(String currentFileParentPath){
+        this.currentFileParentPath = currentFileParentPath;
+    }
 }
