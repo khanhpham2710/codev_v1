@@ -1,6 +1,7 @@
 package app;
 
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
+import enums.ETheme;
 import views.EditorView;
 import views.ProjectView;
 import views.WelcomeView;
@@ -84,12 +85,30 @@ public class App extends JFrame {
             this.setLocationRelativeTo(null);
         });
 
-        monokaiItem.addActionListener(e -> editorView.setColorScheme("Monokai"));
-        eclipseItem.addActionListener(e -> editorView.setColorScheme("Eclipse"));
-        nightItem.addActionListener(e -> editorView.setColorScheme("Night"));
-        redItem.addActionListener(e -> editorView.setColorScheme("Red"));
-        blueItem.addActionListener(e -> editorView.setColorScheme("Blue"));
-        purpleItem.addActionListener(e -> editorView.setColorScheme("Purple"));
+        monokaiItem.addActionListener(e -> {
+            projectView.setColorTheme(ETheme.MONOKAI);
+            editorView.setColorScheme(ETheme.MONOKAI);
+        });
+        eclipseItem.addActionListener(e -> {
+            projectView.setColorTheme(ETheme.ECLIPSE);
+            editorView.setColorScheme(ETheme.ECLIPSE);
+        });
+        nightItem.addActionListener(e -> {
+            projectView.setColorTheme(ETheme.NIGHT);
+            editorView.setColorScheme(ETheme.NIGHT);
+        });
+        redItem.addActionListener(e -> {
+            projectView.setColorTheme(ETheme.RED);
+            editorView.setColorScheme(ETheme.RED);
+        });
+        blueItem.addActionListener(e -> {
+            projectView.setColorTheme(ETheme.BLUE);
+            editorView.setColorScheme(ETheme.BLUE);
+        });
+        purpleItem.addActionListener(e -> {
+            projectView.setColorTheme(ETheme.PURPLE);
+            editorView.setColorScheme(ETheme.PURPLE);
+        });
 
         exitItem.addActionListener(e -> System.exit(0));
     }
@@ -127,7 +146,8 @@ public class App extends JFrame {
         setContentPane(rootPanel);
 
         this.setExtendedState(MAXIMIZED_BOTH);
-        editorView.setColorScheme("Monokai");
+        editorView.setColorScheme(ETheme.MONOKAI);
+        projectView.setColorTheme(ETheme.MONOKAI);
     }
 
     public EditorView getEditorView(){

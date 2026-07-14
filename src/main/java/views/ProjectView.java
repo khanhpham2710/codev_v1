@@ -2,7 +2,10 @@ package views;
 
 import app.App;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
+import config.Setting;
 import entites.FileNode;
+import enums.ETheme;
+import org.fife.ui.rsyntaxtextarea.Theme;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -11,6 +14,7 @@ import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
@@ -107,6 +111,29 @@ public class ProjectView extends JPanel {
 
     public void addComponent() {
         this.add(projectScrollPane, BorderLayout.CENTER);
+    }
+
+    public void setColorTheme(ETheme theme) {
+        var t = Setting.getInstance().getTheme(theme);
+        Color bg = t.bgColor;
+
+        setBackground(bg);
+
+        projectTree.setBackground(bg);
+
+        projectScrollPane.getViewport().setBackground(bg);
+        projectScrollPane.setBackground(bg);
+
+        DefaultTreeCellRenderer renderer =
+                (DefaultTreeCellRenderer) projectTree.getCellRenderer();
+
+        renderer.setBackgroundNonSelectionColor(bg);
+
+        renderer.setBackgroundSelectionColor(t.selectionBG != null ? t.selectionBG : bg.darker());
+        renderer.setTextSelectionColor(t.selectionFG);
+        renderer.setTextNonSelectionColor(t.caretColor);
+
+        repaint();
     }
 
     public JTree getProjectTree() {
