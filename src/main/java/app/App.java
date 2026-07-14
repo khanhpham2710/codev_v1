@@ -18,8 +18,9 @@ public class App extends JFrame {
     JPanel toolPanel;
 
     JMenuBar menuBar;
-    JMenu settingsMenu;
+    JMenu settingsMenu, colorSchemeItem;
     JMenuItem closeProjectItem, newProjectItem,
+            monokaiItem, eclipseItem, nightItem, redItem, blueItem, purpleItem,
             exitItem;
 
     Font editorFont;
@@ -60,6 +61,14 @@ public class App extends JFrame {
         newProjectItem = new JMenuItem("Open new Project");
         closeProjectItem = new JMenuItem("Close project");
 
+        colorSchemeItem = new JMenu("Color scheme");
+        monokaiItem = new JMenuItem("Monokai");
+        eclipseItem = new JMenuItem("Eclipse");
+        nightItem = new JMenuItem("Night");
+        redItem = new JMenuItem("Reversal Red");
+        blueItem = new JMenuItem("Amplified Blue");
+        purpleItem = new JMenuItem("Hollow Purple");
+
         exitItem = new JMenuItem("Exit Codev");
 
         newProjectItem.addActionListener(e -> {
@@ -75,6 +84,13 @@ public class App extends JFrame {
             this.setLocationRelativeTo(null);
         });
 
+        monokaiItem.addActionListener(e -> editorView.setColorScheme("Monokai"));
+        eclipseItem.addActionListener(e -> editorView.setColorScheme("Eclipse"));
+        nightItem.addActionListener(e -> editorView.setColorScheme("Night"));
+        redItem.addActionListener(e -> editorView.setColorScheme("Red"));
+        blueItem.addActionListener(e -> editorView.setColorScheme("Blue"));
+        purpleItem.addActionListener(e -> editorView.setColorScheme("Purple"));
+
         exitItem.addActionListener(e -> System.exit(0));
     }
     public void addComponent() {
@@ -85,6 +101,15 @@ public class App extends JFrame {
         settingsMenu.add(closeProjectItem);
 
         settingsMenu.addSeparator();
+        settingsMenu.add(colorSchemeItem);
+        settingsMenu.addSeparator();
+
+        colorSchemeItem.add(monokaiItem);
+        colorSchemeItem.add(eclipseItem);
+        colorSchemeItem.add(nightItem);
+        colorSchemeItem.add(redItem);
+        colorSchemeItem.add(blueItem);
+        colorSchemeItem.add(purpleItem);
 
         settingsMenu.add(exitItem);
 
@@ -102,6 +127,7 @@ public class App extends JFrame {
         setContentPane(rootPanel);
 
         this.setExtendedState(MAXIMIZED_BOTH);
+        editorView.setColorScheme("Monokai");
     }
 
     public EditorView getEditorView(){
@@ -111,4 +137,6 @@ public class App extends JFrame {
     public ProjectView getProjectView(){
         return projectView;
     }
+
+    public Font getEditorFont() { return editorFont; };
 }
