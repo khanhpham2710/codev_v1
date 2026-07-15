@@ -226,20 +226,49 @@ public class ProjectView extends JPanel {
         try {
             File selectedFile = new File(selectedNode.getFilePath());
             if (selectedFile.exists()) {
-                boolean deleted;
-                if (selectedFile.isDirectory()) deleted = deleteDirectory(selectedFile);
-                else deleted = selectedFile.delete();
+                int confirm = JOptionPane.showConfirmDialog(
+                        null,
+                        "Do you want to delete this file?",
+                        "Delete file",
+                        JOptionPane.YES_NO_OPTION
+                );
 
+                if (confirm == JOptionPane.YES_OPTION) {
+                    Desktop desktop = Desktop.getDesktop();
+                    boolean deleted = false;
 
-                if (deleted) {
-                    DefaultTreeModel model = (DefaultTreeModel) projectTree.getModel();
-                    model.removeNodeFromParent(selectedNode);
-                    model.reload();
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                            "Could not delete the file/folder",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    if (desktop.isSupported(Desktop.Action.MOVE_TO_TRASH)) {
+                        deleted = desktop.moveToTrash(selectedFile);
+                    } else {
+                        int confirmPermanent = JOptionPane.showConfirmDialog(
+                                null,
+                                "Your computer does not support moving files to the Recycle Bin.\n"
+                                        + "Do you want to delete this file permanently?",
+                                "Delete File",
+                                JOptionPane.YES_NO_OPTION
+                        );
+
+                        if (confirmPermanent == JOptionPane.YES_OPTION) {
+                            if (selectedFile.isDirectory()) {
+                                deleted = deleteDirectory(selectedFile);
+                            } else {
+                                deleted = selectedFile.delete();
+                            }
+                        }
+                    }
+
+                    if (deleted) {
+                        DefaultTreeModel model = (DefaultTreeModel) projectTree.getModel();
+                        model.removeNodeFromParent(selectedNode);
+                        model.reload();
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "Could not delete the file/folder.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    }
                 }
             }
         } catch (NullPointerException e) {
