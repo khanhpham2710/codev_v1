@@ -3,6 +3,7 @@ package views;
 import app.App;
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import config.Setting;
+import enums.ETheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +17,7 @@ public class WelcomeView extends JPanel implements ComponentListener {
     private final JLabel mottoLabel;
     public JButton openProjectButton;
 
-    private final int titleWidth = 400, titleHeight = 200,
+    final int titleWidth = 400, titleHeight = 200,
             mottoWidth = 400, mottoHeight = 100,
             buttonWidth = 200, buttonHeight = 50;
 
@@ -25,20 +26,17 @@ public class WelcomeView extends JPanel implements ComponentListener {
         this.addComponentListener(this);
         this.setBounds(0, 0, app.getWidth(), app.getHeight());
         this.setLayout(null);
-        this.setOpaque(false);
+//        this.setOpaque(false);
 
         titleLabel = new JLabel("{" + Setting.APP_NAME + "}");
         titleLabel.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.BOLD, 52));
-        titleLabel.setForeground(Color.WHITE);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         mottoLabel = new JLabel("Code editing simplified");
         mottoLabel.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 24));
-        mottoLabel.setForeground(Color.WHITE);
         mottoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         openProjectButton = new JButton("Open Project");
-        openProjectButton.setForeground(Color.WHITE);
         openProjectButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 18));
 
         openProjectButton.setBackground(new Color(12, 100, 181));
@@ -69,6 +67,18 @@ public class WelcomeView extends JPanel implements ComponentListener {
                     mottoLabel.getY() + mottoHeight,
                     buttonWidth, buttonHeight);
         }
+    }
+
+    public void setColorTheme(ETheme theme) {
+        var t = Setting.getInstance().getTheme(theme);
+        Color bg = t.bgColor;
+
+        setBackground(bg);
+
+        titleLabel.setForeground(t.caretColor);
+        mottoLabel.setForeground(t.caretColor);
+
+        repaint();
     }
 
     @Override
