@@ -400,4 +400,8 @@ public class ProjectView extends JPanel {
     public FileNode getSelectedFileNode() {
         return (FileNode) projectTree.getLastSelectedPathComponent();
     }
+
+    public String getProjectPath(){
+        return projectPath;
+    }
 }

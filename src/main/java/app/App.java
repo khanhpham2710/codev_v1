@@ -2,6 +2,7 @@ package app;
 
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import config.Setting;
+import entites.FileNode;
 import enums.ETheme;
 import views.EditorView;
 import views.ProjectView;
@@ -9,6 +10,8 @@ import views.WelcomeView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
 public class App extends JFrame {
     WelcomeView welcomeView;
@@ -19,6 +22,7 @@ public class App extends JFrame {
     JPanel rightSplitPanel;
     JPanel toolPanel;
 
+    JButton openTerminalButton;
     JButton saveFileButton;
 
     JMenuBar menuBar;
@@ -31,7 +35,9 @@ public class App extends JFrame {
     boolean autoSave = false;
     Timer autoSaveTimer;
 
-    String currentFileParentPath;
+    public String os = System.getProperty("os.name").toLowerCase();
+    public String currentFileParentPath;
+    public ProcessBuilder pb;
 
     Font editorFont;
 
@@ -71,6 +77,42 @@ public class App extends JFrame {
         saveFileButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 14));
         saveFileButton.setBackground(new Color(67, 175, 21));
         saveFileButton.addActionListener(e -> projectView.saveFile());
+
+        openTerminalButton = new JButton("Open Terminal");
+        openTerminalButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 14));
+        openTerminalButton.setBackground(new Color(30, 126, 248));
+        openTerminalButton.addActionListener(e -> {
+            try {
+                if (os.contains("win")) {
+                    pb = new ProcessBuilder("cmd" , "/c" , "start" , "powershell.exe");
+                } else if (os.contains("mac")) {
+                    pb = new ProcessBuilder("open", "-a", "Terminal");
+                } else if (os.contains("nix") || os.contains("nux") || os.contains("bsd")) {
+                    pb = new ProcessBuilder("x-terminal-emulator");
+                } else
+                    JOptionPane.showMessageDialog(null, "Unsupported Operating System", "Error", JOptionPane.ERROR_MESSAGE);
+
+                FileNode selected = projectView.getSelectedFileNode();
+
+                if (selected == null) {
+                    pb.directory(new File(projectView.getProjectPath()));
+                } else if (selected.getIsDirectory()) {
+                    pb.directory(new File(selected.getFilePath()));
+                } else {
+                    File parent = new File(selected.getFilePath()).getParentFile();
+                    pb.directory(parent);
+                }
+                pb.start();
+
+            } catch (IOException ex) {
+                System.err.println("Failed to open terminal: " + ex.getMessage());
+            } catch (UnsupportedOperationException ex) {
+                System.err.println(ex.getMessage());
+            } catch (NullPointerException ex) {
+                JOptionPane.showMessageDialog(null, "Select a file to open the terminal", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
 
         menuBar = new JMenuBar();
         settingsMenu = new JMenu("Settings", true);
@@ -167,6 +209,7 @@ public class App extends JFrame {
 
         settingsMenu.add(exitItem);
 
+        toolPanel.add(openTerminalButton);
         toolPanel.add(saveFileButton);
 
         this.add(rootPanel, BorderLayout.CENTER);
