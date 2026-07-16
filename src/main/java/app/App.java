@@ -4,6 +4,7 @@ import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import config.Setting;
 import entites.FileNode;
 import enums.ETheme;
+import helpers.LanguageChecker;
 import views.EditorView;
 import views.ProjectView;
 import views.WelcomeView;
@@ -26,9 +27,10 @@ public class App extends JFrame {
     JButton saveFileButton;
 
     JMenuBar menuBar;
-    JMenu settingsMenu, colorSchemeItem;
+    JMenu settingsMenu, colorSchemeItem, languageItem;;
     JMenuItem closeProjectItem, newProjectItem,
             monokaiItem, eclipseItem, nightItem, redItem, blueItem, purpleItem,
+            javaItem, pythonItem, jsItem,
             autoSaveItem,
             exitItem;
 
@@ -128,6 +130,12 @@ public class App extends JFrame {
         blueItem = new JMenuItem("Amplified Blue");
         purpleItem = new JMenuItem("Hollow Purple");
 
+        languageItem = new JMenu("Language support");
+        javaItem = new JMenuItem("Java");
+        pythonItem = new JMenuItem("Python");
+        jsItem = new JMenuItem("Javascript");
+
+
         autoSaveItem = new JMenuItem("Auto save : Off");
         exitItem = new JMenuItem("Exit " + Setting.APP_NAME);
 
@@ -197,6 +205,8 @@ public class App extends JFrame {
         settingsMenu.addSeparator();
         settingsMenu.add(colorSchemeItem);
         settingsMenu.addSeparator();
+        settingsMenu.add(languageItem);
+        settingsMenu.addSeparator();
         settingsMenu.add(autoSaveItem);
         settingsMenu.addSeparator();
 
@@ -206,6 +216,25 @@ public class App extends JFrame {
         colorSchemeItem.add(redItem);
         colorSchemeItem.add(blueItem);
         colorSchemeItem.add(purpleItem);
+
+
+        boolean isNodeInstalled = LanguageChecker.isNodeInstalled();
+
+        if (isNodeInstalled){
+            languageItem.add(jsItem);
+        }
+
+        boolean isJavaInstalled = LanguageChecker.isJavaInstalled();
+
+        if (isJavaInstalled){
+            languageItem.add(javaItem);
+        }
+
+        boolean isPythonInstalled = LanguageChecker.isPythonInstalled();
+
+        if (isPythonInstalled){
+            languageItem.add(pythonItem);
+        }
 
         settingsMenu.add(exitItem);
 
