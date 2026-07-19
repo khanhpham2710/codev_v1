@@ -204,9 +204,7 @@ public class App extends JFrame {
         exitItem = new JMenuItem("Exit " + Setting.APP_NAME);
 
         newProjectItem.addActionListener(e -> {
-            projectView.getProjectTree().removeAll();
-            projectView.getRoot().removeAllChildren();
-            projectView.openProject();
+            openProject();
         });
 
         autoSaveTimer = new Timer(5000, e -> {   // every 5 seconds
@@ -321,18 +319,8 @@ public class App extends JFrame {
         setVisible(true);
     }
 
-    public void launch() {
-        setContentPane(rootPanel);
-
-        this.setExtendedState(MAXIMIZED_BOTH);
-    }
-
     public EditorView getEditorView(){
         return editorView;
-    }
-
-    public ProjectView getProjectView(){
-        return projectView;
     }
 
     public JButton getSaveFileButton(){
@@ -354,5 +342,12 @@ public class App extends JFrame {
 
         storage.setTheme(theme);
         setting.setCurrentTheme(theme);
+    }
+
+    public void openProject() {
+        projectView.openProject();
+        setContentPane(rootPanel);
+
+        this.setExtendedState(MAXIMIZED_BOTH);
     }
 }
