@@ -39,6 +39,7 @@ public class App extends JFrame {
             exitItem;
 
     Storage storage = Storage.getInstance();
+    Setting setting = Setting.getInstance();
 
     boolean autoSave = false;
     Timer autoSaveTimer;
@@ -47,10 +48,8 @@ public class App extends JFrame {
     public String currentFileParentPath;
     public ProcessBuilder pb;
 
-    Font editorFont;
-
     public App() {
-        setSize(800, 500);
+        setSize(800, 600);
         setTitle(Setting.APP_NAME);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -66,8 +65,6 @@ public class App extends JFrame {
     }
 
     public void init() {
-        editorFont = new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 18);
-
         welcomeView = new WelcomeView(this);
 
         projectView = new ProjectView(this);
@@ -75,7 +72,7 @@ public class App extends JFrame {
         projectView.init();
         projectView.initActionListeners();
 
-        editorView = new EditorView(this);
+        editorView = new EditorView();
 
         rightSplitPanel = new JPanel();
 
@@ -207,9 +204,7 @@ public class App extends JFrame {
         exitItem = new JMenuItem("Exit " + Setting.APP_NAME);
 
         newProjectItem.addActionListener(e -> {
-            projectView.getProjectTree().removeAll();
-            projectView.getRoot().removeAllChildren();
-            projectView.openProject();
+            openProject();
         });
 
         autoSaveTimer = new Timer(5000, e -> {   // every 5 seconds
@@ -264,6 +259,8 @@ public class App extends JFrame {
 
         ETheme localTheme = storage.getTheme();
         setColorScheme(localTheme);
+
+        AppManager.getInstance().initApplication(this);
     }
     public void addComponent() {
         projectView.addComponent();
@@ -322,21 +319,9 @@ public class App extends JFrame {
         setVisible(true);
     }
 
-    public void launch() {
-        setContentPane(rootPanel);
-
-        this.setExtendedState(MAXIMIZED_BOTH);
-    }
-
     public EditorView getEditorView(){
         return editorView;
     }
-
-    public ProjectView getProjectView(){
-        return projectView;
-    }
-
-    public Font getEditorFont() { return editorFont; };
 
     public JButton getSaveFileButton(){
         return saveFileButton;
@@ -356,5 +341,13 @@ public class App extends JFrame {
         welcomeView.setColorTheme(theme);
 
         storage.setTheme(theme);
+        setting.setCurrentTheme(theme);
+    }
+
+    public void openProject() {
+        projectView.openProject();
+        setContentPane(rootPanel);
+
+        this.setExtendedState(MAXIMIZED_BOTH);
     }
 }

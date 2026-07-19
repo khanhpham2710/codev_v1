@@ -67,6 +67,9 @@ public class ProjectView extends JPanel {
     }
 
     public void openProject() {
+        projectTree.removeAll();
+        root.removeAllChildren();
+
         JFileChooser chooser = new JFileChooser(projectPath);
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 

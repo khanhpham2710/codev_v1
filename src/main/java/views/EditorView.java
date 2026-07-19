@@ -14,13 +14,12 @@ public class EditorView extends RSyntaxTextArea {
 
     private final RTextScrollPane editorScrollPane;
 
-    private final App app;
-
     private boolean modified = false;
 
-    public EditorView(App app) {
+    private Setting setting = Setting.getInstance();
+
+    public EditorView() {
         super();
-        this.app = app;
 
         this.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
         this.setCodeFoldingEnabled(true);
@@ -48,7 +47,7 @@ public class EditorView extends RSyntaxTextArea {
 
     public void setColorScheme(ETheme colorScheme) {
         ThemeConfig.getInstance().getTheme(colorScheme).apply(this);
-        this.setFont(app.getEditorFont());
+        this.setFont(setting.getEditorFont());
     }
 
     public JScrollPane getContentPanel() {

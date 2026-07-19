@@ -1,6 +1,7 @@
 package views;
 
 import app.App;
+import app.AppManager;
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import config.Setting;
 import config.ThemeConfig;
@@ -12,18 +13,16 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
 public class WelcomeView extends JPanel implements ComponentListener {
-    private final App app;
-
     private final JLabel titleLabel;
     private final JLabel mottoLabel;
-    public JButton openProjectButton;
+    private final JButton openProjectButton;
+    private final JButton loginButton;
 
     final int titleWidth = 400, titleHeight = 200,
             mottoWidth = 400, mottoHeight = 100,
             buttonWidth = 200, buttonHeight = 50;
 
     public WelcomeView(App app) {
-        this.app = app;
         this.addComponentListener(this);
         this.setBounds(0, 0, app.getWidth(), app.getHeight());
         this.setLayout(null);
@@ -43,13 +42,22 @@ public class WelcomeView extends JPanel implements ComponentListener {
         openProjectButton.setBackground(new Color(12, 100, 181));
 
         openProjectButton.addActionListener(e -> {
-            app.getProjectView().openProject();
-            app.launch();
+            app.openProject();
+        });
+
+        loginButton = new JButton("Login");
+        loginButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 18));
+
+        loginButton.setBackground(new Color(12, 100, 181));
+
+        loginButton.addActionListener(e -> {
+            AppManager.getInstance().changeView(new LoginView());
         });
 
         this.add(titleLabel);
         this.add(mottoLabel);
         this.add(openProjectButton);
+        this.add(loginButton);
     }
 
     @Override
@@ -66,6 +74,10 @@ public class WelcomeView extends JPanel implements ComponentListener {
             openProjectButton.setBounds(
                     getWidth() / 2 - titleWidth / 4,
                     mottoLabel.getY() + mottoHeight,
+                    buttonWidth, buttonHeight);
+            loginButton.setBounds(
+                    getWidth() / 2 - titleWidth / 4,
+                    openProjectButton.getY() + buttonHeight,
                     buttonWidth, buttonHeight);
         }
     }
