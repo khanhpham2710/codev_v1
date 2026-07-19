@@ -3,8 +3,11 @@ package views;
 import app.AppManager;
 import com.formdev.flatlaf.FlatClientProperties;
 import config.Setting;
+import config.Storage;
 import config.ThemeConfig;
 import enums.ETheme;
+import helpers.PasswordHelper;
+import helpers.TokenHelper;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -26,6 +29,7 @@ public class RegisterView extends JPanel {
     PasswordStrengthStatus passwordStrengthStatus;
 
     Setting setting = Setting.getInstance();
+    Storage storage = Storage.getInstance();
 
     public RegisterView() {
         init();
@@ -41,12 +45,55 @@ public class RegisterView extends JPanel {
         cmdRegister = new JButton("Sign Up");
 
         cmdRegister.addActionListener(e -> {
-            if (isMatchPassword()) {
-                //  Do something here
-            } else {
+            String username = txtUsername.getText().trim();
+            String password = String.valueOf(txtPassword.getPassword());
 
+            if (username.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Username cannot be empty",
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            if (password.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Password cannot be empty",
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            if (isMatchPassword()) {
+                storage.setUserName(username);
+                storage.setPasswordHash(PasswordHelper.hashPassword(txtPassword.getPassword()));
+
+                if (storage.getRememberMe()) {
+                    storage.setUserName(username);
+                    storage.setToken(TokenHelper.generateAccessToken());
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Signup successful"
+                    );
+                } else {
+                    storage.setToken(null);
+                }
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Password do not match",
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
             }
         });
+
+
         passwordStrengthStatus = new PasswordStrengthStatus();
 
         registerPanel = new JPanel(new MigLayout("wrap,fillx,insets 35 45 30 45", "[fill,360]"));

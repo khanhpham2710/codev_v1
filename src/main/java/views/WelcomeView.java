@@ -4,6 +4,7 @@ import app.App;
 import app.AppManager;
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import config.Setting;
+import config.Storage;
 import config.ThemeConfig;
 import enums.ETheme;
 
@@ -57,7 +58,13 @@ public class WelcomeView extends JPanel implements ComponentListener {
         this.add(titleLabel);
         this.add(mottoLabel);
         this.add(openProjectButton);
-        this.add(loginButton);
+
+        Storage storage = Storage.getInstance();
+        if (storage.isValidToken() && storage.getRememberMe()){
+//            this.add(loginButton);
+        } else {
+            this.add(loginButton);
+        }
     }
 
     @Override
