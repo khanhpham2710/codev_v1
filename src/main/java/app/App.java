@@ -49,7 +49,7 @@ public class App extends JFrame {
     public ProcessBuilder pb;
 
     public App() {
-        setSize(800, 500);
+        setSize(800, 600);
         setTitle(Setting.APP_NAME);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
