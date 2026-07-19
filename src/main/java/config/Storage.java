@@ -1,8 +1,11 @@
 package config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import enums.ETheme;
+import helpers.PasswordHelper;
+import helpers.TokenHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +21,10 @@ public class Storage {
 
     private ETheme theme = ETheme.MONOKAI;
     private String lastProjectPath = null;
+    private String userName;
+    private String passwordHash;
+    private String token;
+    private Boolean rememberMe = false;
 
     private Storage() {
 
@@ -46,6 +53,10 @@ public class Storage {
 
             if (storage.lastProjectPath == null || storage.lastProjectPath.isBlank()) {
                 storage.lastProjectPath = System.getProperty("user.home");
+            }
+
+            if (storage.userName == null || storage.userName.isBlank()) {
+                storage.userName = null;
             }
 
             return storage;
@@ -90,12 +101,44 @@ public class Storage {
         return lastProjectPath;
     }
 
+    public void setUserName(String userName){
+        this.userName = userName;
+    }
+
+    public String getUserName(){
+        return userName;
+    }
+
+    public void setPasswordHash(String passwordHash){
+        this.passwordHash= passwordHash;
+    }
+
+    public String getPasswordHash(){
+        return passwordHash;
+    }
+
+    public void setToken(String token){
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
     public void setLastProjectPath(String lastProjectPath) {
         if (lastProjectPath == null || lastProjectPath.isBlank()){
             this.lastProjectPath = null;
         } else {
             this.lastProjectPath = lastProjectPath;
         }
+    }
+
+    public void setRememberMe(boolean rememberMe){
+        this.rememberMe = rememberMe;
+    }
+
+    public Boolean getRememberMe(){
+        return rememberMe;
     }
 
     public static File getConfigFile() {
@@ -109,5 +152,10 @@ public class Storage {
             }
         }
         return false;
+    }
+
+    @JsonIgnore
+    public boolean isValidToken(){
+        return TokenHelper.isValidToken(this.token);
     }
 }

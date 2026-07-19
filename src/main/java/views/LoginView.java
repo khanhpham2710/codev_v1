@@ -3,12 +3,16 @@ package views;
 import app.AppManager;
 import com.formdev.flatlaf.FlatClientProperties;
 import config.Setting;
+import config.Storage;
 import config.ThemeConfig;
 import enums.ETheme;
+import helpers.PasswordHelper;
+import helpers.TokenHelper;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
 
 public class LoginView extends JPanel {
     JPanel loginPanel;
@@ -19,6 +23,7 @@ public class LoginView extends JPanel {
     JButton cmdLogin;
 
     Setting setting = Setting.getInstance();
+    Storage storage = Storage.getInstance();
 
     public LoginView() {
         init();
@@ -35,6 +40,12 @@ public class LoginView extends JPanel {
         txtPassword.putClientProperty(FlatClientProperties.STYLE, "showRevealButton:true");
 
         txtUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Enter your username or email");
+
+        String storedUserName = storage.getUserName();
+        if (storedUserName != null && !storedUserName.isBlank()){
+            txtUsername.setText(storedUserName);
+        }
+
         txtPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Enter your password");
 
         JLabel lbTitle = new JLabel("Welcome back!");
@@ -47,9 +58,70 @@ public class LoginView extends JPanel {
         loginPanel.add(new JLabel("Password"), "gapy 8");
         loginPanel.add(txtPassword);
         loginPanel.add(chRememberMe);
+        chRememberMe.setSelected(Boolean.TRUE.equals(storage.getRememberMe()));
         loginPanel.add(cmdLogin);
         loginPanel.add(createSignupLabel());
         add(loginPanel);
+
+        cmdLogin.addActionListener(e -> {
+            String username = txtUsername.getText().trim();
+            String password = String.valueOf(txtPassword.getPassword());
+
+            if (username.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Username cannot be empty",
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            if (password.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Password cannot be empty",
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            if (!username.equals(storage.getUserName())) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Invalid username or password",
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            if (!PasswordHelper.matches(password, storage.getPasswordHash())) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Invalid username or password",
+                        "Login Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            if (chRememberMe.isSelected()) {
+                storage.setToken(TokenHelper.generateAccessToken());
+            } else {
+                storage.setToken(null);
+            }
+
+            storage.setUserName(username);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Login successful"
+            );
+
+            storage.setRememberMe(chRememberMe.isSelected());
+        });
 
         setColorTheme(setting.getCurrentTheme());
     }
