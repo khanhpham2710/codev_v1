@@ -3,6 +3,7 @@ package views;
 import app.App;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import config.Setting;
+import config.Storage;
 import config.ThemeConfig;
 import entites.FileNode;
 import enums.ETheme;
@@ -38,6 +39,8 @@ public class ProjectView extends JPanel {
 
     JPopupMenu popupMenu;
 
+    Storage storage;
+
     Icon folderIcon;
 
     public ProjectView(App app) {
@@ -56,6 +59,9 @@ public class ProjectView extends JPanel {
         folderIcon = new ImageIcon(Objects.requireNonNull
                 (ProjectView.class.getResource("/icons/folder_icon_24.png")));
 
+        storage = Storage.getInstance();
+        projectPath = storage.getLastProjectPath();
+
         refreshTree();
         createPopupMenu();
     }
@@ -71,6 +77,7 @@ public class ProjectView extends JPanel {
         if (result == JFileChooser.APPROVE_OPTION) {
             projectPath = file.getAbsolutePath();
             openDirectory(file);
+            Storage.getInstance().setLastProjectPath(projectPath);
         }
     }
 

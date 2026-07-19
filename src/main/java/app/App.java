@@ -2,6 +2,7 @@ package app;
 
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import config.Setting;
+import config.Storage;
 import entites.FileNode;
 import enums.ETheme;
 import helpers.LanguageChecker;
@@ -11,6 +12,8 @@ import views.WelcomeView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 
@@ -34,6 +37,8 @@ public class App extends JFrame {
             autoSaveItem,
             exitItem;
 
+    Storage storage = Storage.getInstance();
+
     boolean autoSave = false;
     Timer autoSaveTimer;
 
@@ -49,6 +54,14 @@ public class App extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                storage.save();
+            }
+        });
+
     }
 
     public void init() {
@@ -194,6 +207,9 @@ public class App extends JFrame {
         });
 
         exitItem.addActionListener(e -> System.exit(0));
+
+        ETheme localTheme = storage.getTheme();
+        setColorScheme(localTheme);
     }
     public void addComponent() {
         projectView.addComponent();
@@ -255,7 +271,6 @@ public class App extends JFrame {
         setContentPane(rootPanel);
 
         this.setExtendedState(MAXIMIZED_BOTH);
-        setColorScheme(ETheme.MONOKAI);
     }
 
     public EditorView getEditorView(){
@@ -280,5 +295,7 @@ public class App extends JFrame {
         editorView.setColorScheme(theme);
         projectView.setColorTheme(theme);
         welcomeView.setColorTheme(theme);
+
+        storage.setTheme(theme);
     }
 }
