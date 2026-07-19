@@ -3,6 +3,7 @@ package views;
 import app.App;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import config.Setting;
+import config.ThemeConfig;
 import entites.FileNode;
 import enums.ETheme;
 import org.fife.ui.rsyntaxtextarea.Theme;
@@ -363,7 +364,7 @@ public class ProjectView extends JPanel {
     }
 
     public void setColorTheme(ETheme theme) {
-        var t = Setting.getInstance().getTheme(theme);
+        var t = ThemeConfig.getInstance().getTheme(theme);
         Color bg = t.bgColor;
 
         setBackground(bg);

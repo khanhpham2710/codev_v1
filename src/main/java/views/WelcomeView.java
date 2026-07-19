@@ -3,6 +3,7 @@ package views;
 import app.App;
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import config.Setting;
+import config.ThemeConfig;
 import enums.ETheme;
 
 import javax.swing.*;
@@ -70,7 +71,7 @@ public class WelcomeView extends JPanel implements ComponentListener {
     }
 
     public void setColorTheme(ETheme theme) {
-        var t = Setting.getInstance().getTheme(theme);
+        var t = ThemeConfig.getInstance().getTheme(theme);
         Color bg = t.bgColor;
 
         setBackground(bg);
