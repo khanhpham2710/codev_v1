@@ -40,7 +40,7 @@ public class Storage {
         try {
             Storage storage = MAPPER.readValue(CONFIG_FILE, Storage.class);
 
-            if (storage.theme == null || isValidTheme(storage.theme.toString())) {
+            if (storage.theme == null || !isValidTheme(storage.theme.toString())) {
                 storage.theme = ETheme.MONOKAI;
             }
 
