@@ -7,7 +7,7 @@ import config.Storage;
 import config.ThemeConfig;
 import entites.FileNode;
 import enums.ETheme;
-import org.fife.ui.rsyntaxtextarea.Theme;
+import helpers.LanguageChecker;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -333,11 +333,17 @@ public class ProjectView extends JPanel {
         }
     }
 
-    public void saveFile() {
+    public void runFile() {
+        File file = saveFile();
+
+        boolean result = LanguageChecker.runFile(file);
+    }
+
+    public File saveFile() {
         FileNode node = (FileNode) projectTree.getLastSelectedPathComponent();
         if (node == null) {
             JOptionPane.showMessageDialog(null, "No file selected.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            return null;
         }
 
         node.setContent(app.getEditorView().getText());
@@ -351,11 +357,16 @@ public class ProjectView extends JPanel {
                     "Save Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+
+        return savedFile;
     }
 
     public void setEditorContent(EditorView editorView, FileNode node) {
+        boolean canRunFile = LanguageChecker.checkCanRunFile(node.getNodeName());
+
         editorView.setText(node.getContent());
         app.setTitle(Setting.APP_NAME +  " - " + node.getNodeName());
+        app.getRunFileButton().setVisible(canRunFile);
     }
 
     public void refreshTree() {

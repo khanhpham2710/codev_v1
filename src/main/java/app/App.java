@@ -11,6 +11,7 @@ import views.ProjectView;
 import views.WelcomeView;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -27,7 +28,7 @@ public class App extends JFrame {
     JPanel toolPanel;
 
     JButton openTerminalButton;
-    JButton saveFileButton;
+    JButton saveFileButton, runFileButton;
 
     JMenuBar menuBar;
     JMenu settingsMenu, colorSchemeItem, languageItem;;
@@ -128,6 +129,59 @@ public class App extends JFrame {
             }
         });
 
+        runFileButton = new BasicArrowButton(BasicArrowButton.EAST) {
+            @Override
+            public void paint(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                int w = getWidth();
+                int h = getHeight();
+                int arc = 8;
+
+                ButtonModel model = getModel();
+
+                // Background: transparent normally, tinted on hover/press
+                if (model.isPressed()) {
+                    g2.setColor(new Color(30, 126, 248, 60));
+                    g2.fillRoundRect(0, 0, w - 1, h - 1, arc, arc);
+                } else if (model.isRollover()) {
+                    g2.setColor(new Color(30, 126, 248, 30));
+                    g2.fillRoundRect(0, 0, w - 1, h - 1, arc, arc);
+                }
+
+                // Border
+                g2.setColor(model.isRollover() ? new Color(30, 126, 248) : new Color(30, 126, 248, 120));
+                g2.setStroke(new BasicStroke(1.2f));
+                g2.drawRoundRect(0, 0, w - 1, h - 1, arc, arc);
+
+                // Arrow
+                int[] xPoints = { w / 3, w * 2 / 3, w / 3 };
+                int[] yPoints = { h / 4, h / 2, h * 3 / 4 };
+
+                g2.setColor(new Color(30, 126, 248));
+                g2.fillPolygon(xPoints, yPoints, 3);
+
+                g2.dispose();
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(28, 28);
+            }
+        };
+
+        runFileButton.setOpaque(false);
+        runFileButton.setContentAreaFilled(false);
+        runFileButton.setBorderPainted(false);
+        runFileButton.setFocusPainted(false);
+
+        runFileButton.setRolloverEnabled(true);
+        runFileButton.getModel().addChangeListener(e -> runFileButton.repaint());
+
+        runFileButton.addActionListener(e -> {
+            projectView.runFile();
+        });
 
         menuBar = new JMenuBar();
         settingsMenu = new JMenu("Settings", true);
@@ -256,6 +310,7 @@ public class App extends JFrame {
 
         toolPanel.add(openTerminalButton);
         toolPanel.add(saveFileButton);
+        toolPanel.add(runFileButton);
 
         this.add(rootPanel, BorderLayout.CENTER);
         this.add(welcomeView);
@@ -285,6 +340,10 @@ public class App extends JFrame {
 
     public JButton getSaveFileButton(){
         return saveFileButton;
+    }
+
+    public JButton getRunFileButton() {
+        return runFileButton;
     }
 
     public void setCurrentFileParentPath(String currentFileParentPath){
