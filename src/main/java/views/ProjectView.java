@@ -3,6 +3,8 @@ package views;
 import app.App;
 import com.formdev.flatlaf.fonts.inter.FlatInterFont;
 import config.Setting;
+import config.Storage;
+import config.ThemeConfig;
 import entites.FileNode;
 import enums.ETheme;
 import org.fife.ui.rsyntaxtextarea.Theme;
@@ -37,6 +39,8 @@ public class ProjectView extends JPanel {
 
     JPopupMenu popupMenu;
 
+    Storage storage;
+
     Icon folderIcon;
 
     public ProjectView(App app) {
@@ -55,6 +59,9 @@ public class ProjectView extends JPanel {
         folderIcon = new ImageIcon(Objects.requireNonNull
                 (ProjectView.class.getResource("/icons/folder_icon_24.png")));
 
+        storage = Storage.getInstance();
+        projectPath = storage.getLastProjectPath();
+
         refreshTree();
         createPopupMenu();
     }
@@ -70,6 +77,7 @@ public class ProjectView extends JPanel {
         if (result == JFileChooser.APPROVE_OPTION) {
             projectPath = file.getAbsolutePath();
             openDirectory(file);
+            Storage.getInstance().setLastProjectPath(projectPath);
         }
     }
 
@@ -226,20 +234,49 @@ public class ProjectView extends JPanel {
         try {
             File selectedFile = new File(selectedNode.getFilePath());
             if (selectedFile.exists()) {
-                boolean deleted;
-                if (selectedFile.isDirectory()) deleted = deleteDirectory(selectedFile);
-                else deleted = selectedFile.delete();
+                int confirm = JOptionPane.showConfirmDialog(
+                        null,
+                        "Do you want to delete this file?",
+                        "Delete file",
+                        JOptionPane.YES_NO_OPTION
+                );
 
+                if (confirm == JOptionPane.YES_OPTION) {
+                    Desktop desktop = Desktop.getDesktop();
+                    boolean deleted = false;
 
-                if (deleted) {
-                    DefaultTreeModel model = (DefaultTreeModel) projectTree.getModel();
-                    model.removeNodeFromParent(selectedNode);
-                    model.reload();
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                            "Could not delete the file/folder",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                    if (desktop.isSupported(Desktop.Action.MOVE_TO_TRASH)) {
+                        deleted = desktop.moveToTrash(selectedFile);
+                    } else {
+                        int confirmPermanent = JOptionPane.showConfirmDialog(
+                                null,
+                                "Your computer does not support moving files to the Recycle Bin.\n"
+                                        + "Do you want to delete this file permanently?",
+                                "Delete File",
+                                JOptionPane.YES_NO_OPTION
+                        );
+
+                        if (confirmPermanent == JOptionPane.YES_OPTION) {
+                            if (selectedFile.isDirectory()) {
+                                deleted = deleteDirectory(selectedFile);
+                            } else {
+                                deleted = selectedFile.delete();
+                            }
+                        }
+                    }
+
+                    if (deleted) {
+                        DefaultTreeModel model = (DefaultTreeModel) projectTree.getModel();
+                        model.removeNodeFromParent(selectedNode);
+                        model.reload();
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "Could not delete the file/folder.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    }
                 }
             }
         } catch (NullPointerException e) {
@@ -334,7 +371,7 @@ public class ProjectView extends JPanel {
     }
 
     public void setColorTheme(ETheme theme) {
-        var t = Setting.getInstance().getTheme(theme);
+        var t = ThemeConfig.getInstance().getTheme(theme);
         Color bg = t.bgColor;
 
         setBackground(bg);
@@ -370,5 +407,9 @@ public class ProjectView extends JPanel {
 
     public FileNode getSelectedFileNode() {
         return (FileNode) projectTree.getLastSelectedPathComponent();
+    }
+
+    public String getProjectPath(){
+        return projectPath;
     }
 }

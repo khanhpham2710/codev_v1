@@ -2,6 +2,7 @@ package views;
 
 import app.App;
 import config.Setting;
+import config.ThemeConfig;
 import enums.ETheme;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -46,7 +47,7 @@ public class EditorView extends RSyntaxTextArea {
     }
 
     public void setColorScheme(ETheme colorScheme) {
-        Setting.getInstance().getTheme(colorScheme).apply(this);
+        ThemeConfig.getInstance().getTheme(colorScheme).apply(this);
         this.setFont(app.getEditorFont());
     }
 

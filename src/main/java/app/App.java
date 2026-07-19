@@ -2,13 +2,20 @@ package app;
 
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import config.Setting;
+import config.Storage;
+import entites.FileNode;
 import enums.ETheme;
+import helpers.LanguageChecker;
 import views.EditorView;
 import views.ProjectView;
 import views.WelcomeView;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
 
 public class App extends JFrame {
     WelcomeView welcomeView;
@@ -19,19 +26,25 @@ public class App extends JFrame {
     JPanel rightSplitPanel;
     JPanel toolPanel;
 
+    JButton openTerminalButton;
     JButton saveFileButton;
 
     JMenuBar menuBar;
-    JMenu settingsMenu, colorSchemeItem;
+    JMenu settingsMenu, colorSchemeItem, languageItem;;
     JMenuItem closeProjectItem, newProjectItem,
             monokaiItem, eclipseItem, nightItem, redItem, blueItem, purpleItem,
+            javaItem, pythonItem, jsItem,
             autoSaveItem,
             exitItem;
+
+    Storage storage = Storage.getInstance();
 
     boolean autoSave = false;
     Timer autoSaveTimer;
 
-    String currentFileParentPath;
+    public String os = System.getProperty("os.name").toLowerCase();
+    public String currentFileParentPath;
+    public ProcessBuilder pb;
 
     Font editorFont;
 
@@ -41,6 +54,14 @@ public class App extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                storage.save();
+            }
+        });
+
     }
 
     public void init() {
@@ -72,6 +93,42 @@ public class App extends JFrame {
         saveFileButton.setBackground(new Color(67, 175, 21));
         saveFileButton.addActionListener(e -> projectView.saveFile());
 
+        openTerminalButton = new JButton("Open Terminal");
+        openTerminalButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 14));
+        openTerminalButton.setBackground(new Color(30, 126, 248));
+        openTerminalButton.addActionListener(e -> {
+            try {
+                if (os.contains("win")) {
+                    pb = new ProcessBuilder("cmd" , "/c" , "start" , "powershell.exe");
+                } else if (os.contains("mac")) {
+                    pb = new ProcessBuilder("open", "-a", "Terminal");
+                } else if (os.contains("nix") || os.contains("nux") || os.contains("bsd")) {
+                    pb = new ProcessBuilder("x-terminal-emulator");
+                } else
+                    JOptionPane.showMessageDialog(null, "Unsupported Operating System", "Error", JOptionPane.ERROR_MESSAGE);
+
+                FileNode selected = projectView.getSelectedFileNode();
+
+                if (selected == null) {
+                    pb.directory(new File(projectView.getProjectPath()));
+                } else if (selected.getIsDirectory()) {
+                    pb.directory(new File(selected.getFilePath()));
+                } else {
+                    File parent = new File(selected.getFilePath()).getParentFile();
+                    pb.directory(parent);
+                }
+                pb.start();
+
+            } catch (IOException ex) {
+                System.err.println("Failed to open terminal: " + ex.getMessage());
+            } catch (UnsupportedOperationException ex) {
+                System.err.println(ex.getMessage());
+            } catch (NullPointerException ex) {
+                JOptionPane.showMessageDialog(null, "Select a file to open the terminal", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+
         menuBar = new JMenuBar();
         settingsMenu = new JMenu("Settings", true);
 
@@ -85,6 +142,12 @@ public class App extends JFrame {
         redItem = new JMenuItem("Reversal Red");
         blueItem = new JMenuItem("Amplified Blue");
         purpleItem = new JMenuItem("Hollow Purple");
+
+        languageItem = new JMenu("Language support");
+        javaItem = new JMenuItem("Java");
+        pythonItem = new JMenuItem("Python");
+        jsItem = new JMenuItem("Javascript");
+
 
         autoSaveItem = new JMenuItem("Auto save : Off");
         exitItem = new JMenuItem("Exit " + Setting.APP_NAME);
@@ -125,31 +188,28 @@ public class App extends JFrame {
         });
 
         monokaiItem.addActionListener(e -> {
-            projectView.setColorTheme(ETheme.MONOKAI);
-            editorView.setColorScheme(ETheme.MONOKAI);
+            setColorScheme(ETheme.MONOKAI);
         });
         eclipseItem.addActionListener(e -> {
-            projectView.setColorTheme(ETheme.ECLIPSE);
-            editorView.setColorScheme(ETheme.ECLIPSE);
+            setColorScheme(ETheme.ECLIPSE);
         });
         nightItem.addActionListener(e -> {
-            projectView.setColorTheme(ETheme.NIGHT);
-            editorView.setColorScheme(ETheme.NIGHT);
+            setColorScheme(ETheme.NIGHT);
         });
         redItem.addActionListener(e -> {
-            projectView.setColorTheme(ETheme.RED);
-            editorView.setColorScheme(ETheme.RED);
+            setColorScheme(ETheme.RED);
         });
         blueItem.addActionListener(e -> {
-            projectView.setColorTheme(ETheme.BLUE);
-            editorView.setColorScheme(ETheme.BLUE);
+            setColorScheme(ETheme.BLUE);
         });
         purpleItem.addActionListener(e -> {
-            projectView.setColorTheme(ETheme.PURPLE);
-            editorView.setColorScheme(ETheme.PURPLE);
+            setColorScheme(ETheme.PURPLE);
         });
 
         exitItem.addActionListener(e -> System.exit(0));
+
+        ETheme localTheme = storage.getTheme();
+        setColorScheme(localTheme);
     }
     public void addComponent() {
         projectView.addComponent();
@@ -161,6 +221,8 @@ public class App extends JFrame {
         settingsMenu.addSeparator();
         settingsMenu.add(colorSchemeItem);
         settingsMenu.addSeparator();
+        settingsMenu.add(languageItem);
+        settingsMenu.addSeparator();
         settingsMenu.add(autoSaveItem);
         settingsMenu.addSeparator();
 
@@ -171,8 +233,28 @@ public class App extends JFrame {
         colorSchemeItem.add(blueItem);
         colorSchemeItem.add(purpleItem);
 
+
+        boolean isNodeInstalled = LanguageChecker.isNodeInstalled();
+
+        if (isNodeInstalled){
+            languageItem.add(jsItem);
+        }
+
+        boolean isJavaInstalled = LanguageChecker.isJavaInstalled();
+
+        if (isJavaInstalled){
+            languageItem.add(javaItem);
+        }
+
+        boolean isPythonInstalled = LanguageChecker.isPythonInstalled();
+
+        if (isPythonInstalled){
+            languageItem.add(pythonItem);
+        }
+
         settingsMenu.add(exitItem);
 
+        toolPanel.add(openTerminalButton);
         toolPanel.add(saveFileButton);
 
         this.add(rootPanel, BorderLayout.CENTER);
@@ -189,8 +271,6 @@ public class App extends JFrame {
         setContentPane(rootPanel);
 
         this.setExtendedState(MAXIMIZED_BOTH);
-        editorView.setColorScheme(ETheme.MONOKAI);
-        projectView.setColorTheme(ETheme.MONOKAI);
     }
 
     public EditorView getEditorView(){
@@ -209,5 +289,13 @@ public class App extends JFrame {
 
     public void setCurrentFileParentPath(String currentFileParentPath){
         this.currentFileParentPath = currentFileParentPath;
+    }
+
+    private void setColorScheme(ETheme theme){
+        editorView.setColorScheme(theme);
+        projectView.setColorTheme(theme);
+        welcomeView.setColorTheme(theme);
+
+        storage.setTheme(theme);
     }
 }
