@@ -39,6 +39,7 @@ public class App extends JFrame {
             exitItem;
 
     Storage storage = Storage.getInstance();
+    Setting setting = Setting.getInstance();
 
     boolean autoSave = false;
     Timer autoSaveTimer;
@@ -46,8 +47,6 @@ public class App extends JFrame {
     public String os = System.getProperty("os.name").toLowerCase();
     public String currentFileParentPath;
     public ProcessBuilder pb;
-
-    Font editorFont;
 
     public App() {
         setSize(800, 500);
@@ -66,8 +65,6 @@ public class App extends JFrame {
     }
 
     public void init() {
-        editorFont = new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 18);
-
         welcomeView = new WelcomeView(this);
 
         projectView = new ProjectView(this);
@@ -75,7 +72,7 @@ public class App extends JFrame {
         projectView.init();
         projectView.initActionListeners();
 
-        editorView = new EditorView(this);
+        editorView = new EditorView();
 
         rightSplitPanel = new JPanel();
 
@@ -264,6 +261,8 @@ public class App extends JFrame {
 
         ETheme localTheme = storage.getTheme();
         setColorScheme(localTheme);
+
+        AppManager.getInstance().initApplication(this);
     }
     public void addComponent() {
         projectView.addComponent();
@@ -336,8 +335,6 @@ public class App extends JFrame {
         return projectView;
     }
 
-    public Font getEditorFont() { return editorFont; };
-
     public JButton getSaveFileButton(){
         return saveFileButton;
     }
@@ -356,5 +353,6 @@ public class App extends JFrame {
         welcomeView.setColorTheme(theme);
 
         storage.setTheme(theme);
+        setting.setCurrentTheme(theme);
     }
 }
