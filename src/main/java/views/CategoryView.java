@@ -35,6 +35,8 @@ public class CategoryView extends JPanel {
             JButton button = new JButton(category.name());
 
             categoryPanel.add(button);
+
+            button.addActionListener(e -> AppManager.getInstance().changeView(new SubCategoryView(category)));
         });
 
     }
