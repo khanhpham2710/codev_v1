@@ -73,16 +73,17 @@ public class RegisterView extends JPanel {
                 storage.setPasswordHash(PasswordHelper.hashPassword(txtPassword.getPassword()));
 
                 if (storage.getRememberMe()) {
-                    storage.setUserName(username);
                     storage.setToken(TokenHelper.generateAccessToken());
-
-                    JOptionPane.showMessageDialog(
-                            this,
-                            "Signup successful"
-                    );
                 } else {
                     storage.setToken(null);
                 }
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Signup successful"
+                );
+
+                AppManager.getInstance().changeView(new CategoryView());
             } else {
                 JOptionPane.showMessageDialog(
                         this,

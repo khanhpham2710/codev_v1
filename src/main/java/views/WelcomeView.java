@@ -17,7 +17,7 @@ public class WelcomeView extends JPanel implements ComponentListener {
     private final JLabel titleLabel;
     private final JLabel mottoLabel;
     private final JButton openProjectButton;
-    private final JButton loginButton;
+    private final JButton actionButton;
 
     final int titleWidth = 400, titleHeight = 200,
             mottoWidth = 400, mottoHeight = 100,
@@ -46,25 +46,35 @@ public class WelcomeView extends JPanel implements ComponentListener {
             app.openProject();
         });
 
-        loginButton = new JButton("Login");
-        loginButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 18));
+        JButton loginButton = new JButton("Login");
 
-        loginButton.setBackground(new Color(12, 100, 181));
 
         loginButton.addActionListener(e -> {
             AppManager.getInstance().changeView(new LoginView());
+        });
+
+        JButton quizButton = new JButton("Take quiz");
+        quizButton.addActionListener(e -> {
+            AppManager.getInstance().changeView(new CategoryView());
         });
 
         this.add(titleLabel);
         this.add(mottoLabel);
         this.add(openProjectButton);
 
+
         Storage storage = Storage.getInstance();
         if (storage.isValidToken() && storage.getRememberMe()){
-//            this.add(loginButton);
+            this.actionButton = quizButton;
         } else {
-            this.add(loginButton);
+            this.actionButton = loginButton;
         }
+
+        actionButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 18));
+
+        actionButton.setBackground(new Color(12, 100, 181));
+
+        this.add(actionButton);
     }
 
     @Override
@@ -82,7 +92,7 @@ public class WelcomeView extends JPanel implements ComponentListener {
                     getWidth() / 2 - titleWidth / 4,
                     mottoLabel.getY() + mottoHeight,
                     buttonWidth, buttonHeight);
-            loginButton.setBounds(
+            actionButton.setBounds(
                     getWidth() / 2 - titleWidth / 4,
                     openProjectButton.getY() + buttonHeight,
                     buttonWidth, buttonHeight);
