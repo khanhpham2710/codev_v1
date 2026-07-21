@@ -121,6 +121,8 @@ public class LoginView extends JPanel {
             );
 
             storage.setRememberMe(chRememberMe.isSelected());
+
+            AppManager.getInstance().changeView(new CategoryView());
         });
 
         setColorTheme(setting.getCurrentTheme());
