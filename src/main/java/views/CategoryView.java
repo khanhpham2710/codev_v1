@@ -15,7 +15,7 @@ public class CategoryView extends JPanel {
     private final JLabel title;
 
     public CategoryView() {
-        this.categoriesService = new CategoriesService();
+        this.categoriesService = CategoriesService.getInstance();
 
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));

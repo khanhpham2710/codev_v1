@@ -47,6 +47,10 @@ public class SubCategoryView extends JPanel {
 
             button.setPreferredSize(new Dimension(200, 80));
 
+            button.addActionListener(e -> {
+                AppManager.getInstance().changeView(new QuizzesView(category, c));
+            });
+
             categoryPanel.add(button);
         });
 
