@@ -1,5 +1,6 @@
 package views;
 
+import app.AppManager;
 import dto.response.Category;
 
 import javax.swing.*;
@@ -9,6 +10,9 @@ import java.awt.*;
 public class SubCategoryView extends JPanel {
     private Category category;
     private JLabel title;
+    private JButton backButton;
+
+    private JPanel headerPanel;
 
     public SubCategoryView(Category category) {
         this.category = category;
@@ -16,11 +20,25 @@ public class SubCategoryView extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        title = new JLabel(category.name());
-        title.setHorizontalAlignment(SwingConstants.CENTER);
+        headerPanel = new JPanel(new BorderLayout());
+
+        backButton = new JButton("Back");
+
+        backButton.addActionListener(e -> {
+            AppManager.getInstance().back();
+        });
+
+        title = new JLabel(category.name(), SwingConstants.CENTER);
         title.setFont(new Font(title.getFont().getName(), Font.BOLD, 24));
 
-        add(title, BorderLayout.NORTH);
+        JPanel spacer = new JPanel();
+        spacer.setPreferredSize(backButton.getPreferredSize());
+
+        headerPanel.add(spacer, BorderLayout.WEST);
+        headerPanel.add(title, BorderLayout.CENTER);
+        headerPanel.add(backButton, BorderLayout.EAST);
+
+        add(headerPanel, BorderLayout.NORTH);
 
         JPanel categoryPanel = new JPanel(new GridLayout(0, 3, 10, 10));
 
