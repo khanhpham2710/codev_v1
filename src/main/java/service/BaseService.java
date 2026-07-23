@@ -38,6 +38,8 @@ public abstract class BaseService {
 
             int statusCode = response.statusCode();
 
+            System.out.println(response.body());
+
             if (statusCode < 200 || statusCode >= 300) {
                 logError(
                         request.method(),
@@ -93,14 +95,14 @@ public abstract class BaseService {
         return get(url, responseType, Map.of(), Map.of());
     }
 
-    protected <T> ResponseWrapper<T> getWithToken(String url, Class<T> responseType) {
+    protected <T> ResponseWrapper<T> getWithToken(String url, Class<T> responseType, Map<String, String> params) {
         String token = ConfigProperties.getInstance().getProperties(EPropertyKey.API_TOKEN);
 
         Map<String, String> headers = (token == null || token.isBlank())
                 ? Map.of()
                 : Map.of("Authorization", "Bearer " + token);
 
-        return get(url, responseType, Map.of(), headers);
+        return get(url, responseType, params, headers);
     }
 
     private String buildUrl(String url, Map<String, String> params) {
