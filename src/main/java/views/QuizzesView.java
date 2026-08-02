@@ -1,18 +1,16 @@
 package views;
 
+import app.AppManager;
 import components.Dropdown.Dropdown;
 import components.Pagination.Pagination;
-import components.Pagination.PaginationEvent;
-import dto.response.Category;
-import dto.response.PaginationMeta;
-import dto.response.QuizzesOverall;
-import dto.response.QuizzesResponse;
-import dto.response.SubCategory;
+import dto.response.*;
 import enums.EDifficulty;
 import service.QuizService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,6 +177,17 @@ public class QuizzesView extends JPanel {
 
         panel.add(title, BorderLayout.NORTH);
         panel.add(info, BorderLayout.CENTER);
+
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                QuizDataResponse.QuizData quizData = quizService.getQuizById(quiz.id());
+
+                if (quizData != null){
+                    AppManager.getInstance().changeView(new QuizView(quizData));
+                }
+            }
+        });
 
         return panel;
     }

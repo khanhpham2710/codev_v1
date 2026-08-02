@@ -105,6 +105,16 @@ public abstract class BaseService {
         return get(url, responseType, params, headers);
     }
 
+    protected <T> ResponseWrapper<T> getWithToken(String url, Class<T> responseType) {
+        String token = ConfigProperties.getInstance().getProperties(EPropertyKey.API_TOKEN);
+
+        Map<String, String> headers = (token == null || token.isBlank())
+                ? Map.of()
+                : Map.of("Authorization", "Bearer " + token);
+
+        return get(url, responseType, null, headers);
+    }
+
     private String buildUrl(String url, Map<String, String> params) {
         if (params.isEmpty()) {
             return url;
