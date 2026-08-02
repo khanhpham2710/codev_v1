@@ -1,6 +1,7 @@
 package views;
 
 import app.AppManager;
+import components.BackButton.BackButton;
 import components.Dropdown.Dropdown;
 import components.Pagination.Pagination;
 import dto.response.*;
@@ -33,7 +34,11 @@ public class QuizzesView extends JPanel {
 
         quizService = new QuizService();
 
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel filterPanel = new JPanel(new BorderLayout());
+
+        JPanel leftPanel = new JPanel(
+                new FlowLayout(FlowLayout.LEFT)
+        );
 
         categoryDropdown = new Dropdown<>();
         difficultyDropdown = new Dropdown<>();
@@ -52,12 +57,23 @@ public class QuizzesView extends JPanel {
 
         JButton searchButton = new JButton("Search");
 
-        filterPanel.add(categoryDropdown);
-        filterPanel.add(difficultyDropdown);
-        filterPanel.add(searchButton);
+        leftPanel.add(categoryDropdown);
+        leftPanel.add(difficultyDropdown);
+        leftPanel.add(searchButton);
+
+        BackButton backButton = new BackButton();
+
+        JPanel rightPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT)
+        );
+
+        rightPanel.add(backButton);
+
+
+        filterPanel.add(leftPanel, BorderLayout.WEST);
+        filterPanel.add(rightPanel, BorderLayout.EAST);
 
         add(filterPanel, BorderLayout.NORTH);
-
 
         quizListPanel = new JPanel();
 
@@ -76,9 +92,11 @@ public class QuizzesView extends JPanel {
 
         add(scrollPane, BorderLayout.CENTER);
 
+        JPanel paginationPanel = new JPanel();
 
         pagination = new Pagination();
-        add(pagination, BorderLayout.SOUTH);
+        paginationPanel.add(pagination, BorderLayout.CENTER);
+        add(paginationPanel, BorderLayout.SOUTH);
 
         pagination.addEventPagination(this::loadData);
         searchButton.addActionListener(e -> loadData(1));

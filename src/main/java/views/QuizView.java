@@ -1,5 +1,6 @@
 package views;
 
+import components.BackButton.BackButton;
 import dto.response.QuizDataResponse.Answer;
 import dto.response.QuizDataResponse.Question;
 import dto.response.QuizDataResponse.QuizData;
@@ -71,8 +72,13 @@ public class QuizView extends JPanel {
         actions.add(resetButton);
         actions.add(finishButton);
 
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        BackButton backButton = new BackButton();
 
-        header.add(timerLabel, BorderLayout.WEST);
+        leftPanel.add(backButton);
+        leftPanel.add(timerLabel);
+
+        header.add(leftPanel, BorderLayout.WEST);
         header.add(actions, BorderLayout.EAST);
 
 

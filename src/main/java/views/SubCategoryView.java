@@ -1,6 +1,7 @@
 package views;
 
 import app.AppManager;
+import components.BackButton.BackButton;
 import dto.response.Category;
 
 import javax.swing.*;
@@ -22,12 +23,8 @@ public class SubCategoryView extends JPanel {
 
         headerPanel = new JPanel(new BorderLayout());
 
-        backButton = new JButton("Back");
-
-        backButton.addActionListener(e -> {
-            AppManager.getInstance().back();
-        });
-
+        backButton = new BackButton();
+        
         title = new JLabel(category.name(), SwingConstants.CENTER);
         title.setFont(new Font(title.getFont().getName(), Font.BOLD, 24));
 
