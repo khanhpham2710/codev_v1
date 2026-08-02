@@ -1,7 +1,7 @@
 package views;
 
 import app.AppManager;
-import components.BackButton.BackButton;
+import components.Button.BackButton;
 import components.Dropdown.Dropdown;
 import components.Pagination.Pagination;
 import dto.response.*;

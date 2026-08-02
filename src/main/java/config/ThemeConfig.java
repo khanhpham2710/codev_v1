@@ -3,16 +3,21 @@ package config;
 import enums.ETheme;
 import org.fife.ui.rsyntaxtextarea.Theme;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ThemeConfig {
+public final class ThemeConfig {
+
     private static final ThemeConfig INSTANCE = new ThemeConfig();
 
     private final Map<ETheme, Theme> themes = new EnumMap<>(ETheme.class);
+
+    private boolean darkTheme = Storage.getInstance().getDarkTheme();
 
     private ThemeConfig() {
         loadThemes();
@@ -53,4 +58,12 @@ public class ThemeConfig {
         return themes.getOrDefault(themeName, themes.get(ETheme.MONOKAI));
     }
 
+    public boolean getDarkTheme(){
+        return darkTheme;
+    }
+
+    public void setDarkTheme(boolean darkTheme){
+        this.darkTheme = darkTheme;
+        Storage.getInstance().setDarkTheme(darkTheme);
+    }
 }

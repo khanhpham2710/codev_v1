@@ -1,6 +1,6 @@
 package views;
 
-import components.BackButton.BackButton;
+import components.Button.BackButton;
 import dto.response.QuizDataResponse.Answer;
 import dto.response.QuizDataResponse.Question;
 import dto.response.QuizDataResponse.QuizData;
