@@ -3,10 +3,9 @@ package views;
 import app.App;
 import app.AppManager;
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
+import components.Button.BaseButton;
 import config.Setting;
 import config.Storage;
-import config.ThemeConfig;
-import enums.ETheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,8 +15,7 @@ import java.awt.event.ComponentListener;
 public class WelcomeView extends JPanel implements ComponentListener {
     private final JLabel titleLabel;
     private final JLabel mottoLabel;
-    private final JButton openProjectButton;
-    private final JButton actionButton;
+    private final BaseButton openProjectButton, actionButton;
 
     final int titleWidth = 400, titleHeight = 200,
             mottoWidth = 400, mottoHeight = 100,
@@ -37,23 +35,21 @@ public class WelcomeView extends JPanel implements ComponentListener {
         mottoLabel.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 24));
         mottoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        openProjectButton = new JButton("Open Project");
+        openProjectButton = new BaseButton("Open Project");
         openProjectButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 18));
-
-        openProjectButton.setBackground(new Color(12, 100, 181));
 
         openProjectButton.addActionListener(e -> {
             app.openProject();
         });
 
-        JButton loginButton = new JButton("Login");
+        BaseButton loginButton = new BaseButton("Login");
 
 
         loginButton.addActionListener(e -> {
             AppManager.getInstance().changeView(new LoginView());
         });
 
-        JButton quizButton = new JButton("Take quiz");
+        BaseButton quizButton = new BaseButton("Take quiz");
         quizButton.addActionListener(e -> {
             AppManager.getInstance().changeView(new CategoryView());
         });
@@ -71,8 +67,6 @@ public class WelcomeView extends JPanel implements ComponentListener {
         }
 
         actionButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 18));
-
-        actionButton.setBackground(new Color(12, 100, 181));
 
         this.add(actionButton);
     }
@@ -99,18 +93,6 @@ public class WelcomeView extends JPanel implements ComponentListener {
         }
     }
 
-    public void setColorTheme(ETheme theme) {
-        var t = ThemeConfig.getInstance().getTheme(theme);
-        Color bg = t.bgColor;
-
-        setBackground(bg);
-
-        titleLabel.setForeground(t.caretColor);
-        mottoLabel.setForeground(t.caretColor);
-
-        repaint();
-    }
-
     @Override
     public void componentMoved(ComponentEvent e) {
 
@@ -124,5 +106,10 @@ public class WelcomeView extends JPanel implements ComponentListener {
     @Override
     public void componentHidden(ComponentEvent e) {
 
+    }
+
+    public void toggleDarkTheme(){
+        openProjectButton.applyTheme();
+        actionButton.applyTheme();
     }
 }

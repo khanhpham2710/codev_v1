@@ -19,6 +19,7 @@ public class Storage {
 
     private static Storage instance;
 
+    private Boolean darkTheme = true;
     private ETheme theme = ETheme.MONOKAI;
     private String lastProjectPath = null;
     private String userName;
@@ -139,6 +140,14 @@ public class Storage {
 
     public Boolean getRememberMe(){
         return rememberMe;
+    }
+
+    public void setDarkTheme(boolean darkTheme){
+        this.darkTheme = darkTheme;
+    }
+
+    public Boolean getDarkTheme(){
+        return darkTheme;
     }
 
     public static File getConfigFile() {

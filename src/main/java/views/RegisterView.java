@@ -131,8 +131,6 @@ public class RegisterView extends JPanel {
         registerPanel.add(cmdRegister, "gapy 20");
         registerPanel.add(createLoginLabel(), "gapy 10");
         add(registerPanel);
-
-        setColorTheme(setting.getCurrentTheme());
     }
 
     private Component createGenderPanel() {
@@ -176,15 +174,5 @@ public class RegisterView extends JPanel {
         String password = String.valueOf(txtPassword.getPassword());
         String confirmPassword = String.valueOf(txtConfirmPassword.getPassword());
         return password.equals(confirmPassword);
-    }
-
-    public void setColorTheme(ETheme theme) {
-        var t = ThemeConfig.getInstance().getTheme(theme);
-        Color bg = t.bgColor;
-
-        setBackground(bg);
-        registerPanel.setBackground(t.foldBG);
-
-        repaint();
     }
 }

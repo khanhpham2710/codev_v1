@@ -1,8 +1,12 @@
 package app;
 
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
+import components.Button.BaseButton;
 import config.Setting;
 import config.Storage;
+import config.ThemeConfig;
 import entites.FileNode;
 import enums.ETheme;
 import helpers.LanguageChecker;
@@ -27,12 +31,13 @@ public class App extends JFrame {
     JPanel rightSplitPanel;
     JPanel toolPanel;
 
-    JButton openTerminalButton;
+    BaseButton openTerminalButton;
     JButton saveFileButton, runFileButton;
 
     JMenuBar menuBar;
-    JMenu settingsMenu, colorSchemeItem, languageItem;;
+    JMenu settingsMenu, colorSchemeItem, languageItem, themeItem;
     JMenuItem closeProjectItem, newProjectItem,
+            darkThemeItem, lightThemeItem,
             monokaiItem, eclipseItem, nightItem, redItem, blueItem, purpleItem,
             javaItem, pythonItem, jsItem,
             autoSaveItem,
@@ -91,7 +96,7 @@ public class App extends JFrame {
         saveFileButton.setBackground(new Color(67, 175, 21));
         saveFileButton.addActionListener(e -> projectView.saveFile());
 
-        openTerminalButton = new JButton("Open Terminal");
+        openTerminalButton = new BaseButton("Open Terminal");
         openTerminalButton.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.PLAIN, 14));
         openTerminalButton.setBackground(new Color(30, 126, 248));
         openTerminalButton.addActionListener(e -> {
@@ -199,9 +204,20 @@ public class App extends JFrame {
         pythonItem = new JMenuItem("Python");
         jsItem = new JMenuItem("Javascript");
 
+        themeItem = new JMenu("Theme");
+        darkThemeItem = new JMenuItem("Dark");
+        lightThemeItem = new JMenuItem("Light");
 
         autoSaveItem = new JMenuItem("Auto save : Off");
         exitItem = new JMenuItem("Exit " + Setting.APP_NAME);
+
+        darkThemeItem.addActionListener(e -> {
+            toggleDarkTheme(true);
+        });
+
+        lightThemeItem.addActionListener(e -> {
+            toggleDarkTheme(false);
+        });
 
         newProjectItem.addActionListener(e -> {
             openProject();
@@ -260,6 +276,8 @@ public class App extends JFrame {
         ETheme localTheme = storage.getTheme();
         setColorScheme(localTheme);
 
+        toggleDarkTheme(storage.getDarkTheme());
+
         AppManager.getInstance().initApplication(this);
     }
     public void addComponent() {
@@ -270,12 +288,16 @@ public class App extends JFrame {
         settingsMenu.add(closeProjectItem);
 
         settingsMenu.addSeparator();
+        settingsMenu.add(themeItem);
         settingsMenu.add(colorSchemeItem);
         settingsMenu.addSeparator();
         settingsMenu.add(languageItem);
         settingsMenu.addSeparator();
         settingsMenu.add(autoSaveItem);
         settingsMenu.addSeparator();
+
+        themeItem.add(darkThemeItem);
+        themeItem.add(lightThemeItem);
 
         colorSchemeItem.add(monokaiItem);
         colorSchemeItem.add(eclipseItem);
@@ -338,7 +360,6 @@ public class App extends JFrame {
     private void setColorScheme(ETheme theme){
         editorView.setColorScheme(theme);
         projectView.setColorTheme(theme);
-        welcomeView.setColorTheme(theme);
 
         storage.setTheme(theme);
         setting.setCurrentTheme(theme);
@@ -349,5 +370,20 @@ public class App extends JFrame {
         setContentPane(rootPanel);
 
         this.setExtendedState(MAXIMIZED_BOTH);
+    }
+
+    private void toggleDarkTheme(boolean isDarkTheme){
+        ThemeConfig themeConfig = ThemeConfig.getInstance();
+
+        try {
+            themeConfig.setDarkTheme(isDarkTheme);
+            UIManager.setLookAndFeel(isDarkTheme ? new FlatMacDarkLaf() : new FlatMacLightLaf());
+            welcomeView.toggleDarkTheme();
+            SwingUtilities.updateComponentTreeUI(this);
+            openTerminalButton.applyTheme();
+            projectView.refreshTree();
+        } catch (UnsupportedLookAndFeelException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }

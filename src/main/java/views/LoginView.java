@@ -124,8 +124,6 @@ public class LoginView extends JPanel {
 
             AppManager.getInstance().changeView(new CategoryView());
         });
-
-        setColorTheme(setting.getCurrentTheme());
     }
 
     private Component createSignupLabel() {
@@ -140,15 +138,5 @@ public class LoginView extends JPanel {
         loginPanel.add(label);
         loginPanel.add(cmdRegister);
         return panel;
-    }
-
-    public void setColorTheme(ETheme theme) {
-        var t = ThemeConfig.getInstance().getTheme(theme);
-        Color bg = t.bgColor;
-
-        setBackground(bg);
-        loginPanel.setBackground(t.foldBG);
-
-        repaint();
     }
 }
