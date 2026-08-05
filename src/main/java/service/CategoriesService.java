@@ -1,7 +1,7 @@
 package service;
 
 import dto.response.CategoriesResponse;
-import dto.response.Category;
+import dto.response.CategoriesResponse.*;
 
 import java.util.List;
 
