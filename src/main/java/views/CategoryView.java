@@ -1,9 +1,8 @@
 package views;
 
 import app.AppManager;
-import dto.response.Category;
 import service.CategoriesService;
-
+import dto.response.CategoriesResponse.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;

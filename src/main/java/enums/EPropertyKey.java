@@ -1,7 +1,7 @@
 package enums;
 
 public enum EPropertyKey {
-    API_TOKEN("api.token");
+    API_TOKEN("api.token"), CONNECTION_STRING("connection_string"), DB_PASSWORD("db_password"), DB_USERNAME("db_username");
 
     private final String key;
 

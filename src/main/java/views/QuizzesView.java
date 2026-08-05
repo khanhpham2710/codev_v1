@@ -5,6 +5,7 @@ import components.Button.BackButton;
 import components.Dropdown.Dropdown;
 import components.Pagination.Pagination;
 import dto.response.*;
+import dto.response.CategoriesResponse.*;
 import enums.EDifficulty;
 import service.QuizService;
 

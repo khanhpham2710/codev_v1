@@ -2,7 +2,7 @@ package views;
 
 import app.AppManager;
 import components.Button.BackButton;
-import dto.response.Category;
+import dto.response.CategoriesResponse.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
