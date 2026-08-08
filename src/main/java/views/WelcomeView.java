@@ -4,13 +4,18 @@ import app.App;
 import app.AppManager;
 import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import components.Button.BaseButton;
+import config.CurrentUser;
 import config.Setting;
 import config.Storage;
+import entites.UserEntity;
+import mapper.UserMapper;
+import service.UserService;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.Optional;
 
 public class WelcomeView extends JPanel implements ComponentListener {
     private final JLabel titleLabel;
@@ -21,11 +26,16 @@ public class WelcomeView extends JPanel implements ComponentListener {
             mottoWidth = 400, mottoHeight = 100,
             buttonWidth = 200, buttonHeight = 50;
 
+    private final Storage storage = Storage.getInstance();
+    private final UserService userService;
+
     public WelcomeView(App app) {
         this.addComponentListener(this);
         this.setBounds(0, 0, app.getWidth(), app.getHeight());
         this.setLayout(null);
 //        this.setOpaque(false);
+
+        this.userService = new UserService();
 
         titleLabel = new JLabel("{" + Setting.APP_NAME + "}");
         titleLabel.setFont(new Font(FlatJetBrainsMonoFont.FAMILY, Font.BOLD, 52));
@@ -59,8 +69,8 @@ public class WelcomeView extends JPanel implements ComponentListener {
         this.add(openProjectButton);
 
 
-        Storage storage = Storage.getInstance();
-        if (storage.isValidToken() && storage.getRememberMe()){
+        if (storage.isValidToken() && storage.getRememberMe() && storage.getUserName() != null){
+            loginStorageUser(storage.getUserName());
             this.actionButton = quizButton;
         } else {
             this.actionButton = loginButton;
@@ -111,5 +121,14 @@ public class WelcomeView extends JPanel implements ComponentListener {
     public void toggleDarkTheme(){
         openProjectButton.applyTheme();
         actionButton.applyTheme();
+    }
+
+    private void loginStorageUser(String userName){
+        if (userName != null){
+            Optional<UserEntity> userEntity = userService.findByUsername(userName);
+
+            userEntity.ifPresent(entity -> CurrentUser.getInstance().login(UserMapper.toDTO(entity)));
+        }
+
     }
 }

@@ -13,6 +13,8 @@ public class UserMapper {
 
         UserDTO dto = new UserDTO();
 
+        dto.setId(userEntity.getId());
+
         dto.setUserName(userEntity.getUserName());
 
         dto.setGender(userEntity.getGender());
