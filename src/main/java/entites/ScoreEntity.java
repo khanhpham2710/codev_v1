@@ -7,7 +7,7 @@ public class ScoreEntity {
 
     private final UUID id;
     private final String quizId;
-    private final Instant createdAt;
+    private final Instant createdAt = Instant.now();
     private final UUID userId;
     private final Integer score;
 
@@ -15,7 +15,6 @@ public class ScoreEntity {
         this.id = (id != null) ? id : UUID.randomUUID();
         this.quizId = quizId;
         this.userId = userId;
-        this.createdAt = Instant.now();
         this.score = (score != null) ? score : 0;
 
         validate();

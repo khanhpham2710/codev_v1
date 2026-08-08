@@ -1,6 +1,7 @@
 package config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import enums.ETheme;
@@ -9,7 +10,9 @@ import helpers.TokenHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Storage {
 
     private static final File CONFIG_FILE = new File("config.json");
@@ -23,7 +26,6 @@ public class Storage {
     private ETheme theme = ETheme.MONOKAI;
     private String lastProjectPath = null;
     private String userName;
-    private String passwordHash;
     private String token;
     private Boolean rememberMe = false;
 
@@ -108,14 +110,6 @@ public class Storage {
 
     public String getUserName(){
         return userName;
-    }
-
-    public void setPasswordHash(String passwordHash){
-        this.passwordHash= passwordHash;
-    }
-
-    public String getPasswordHash(){
-        return passwordHash;
     }
 
     public void setToken(String token){

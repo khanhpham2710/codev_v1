@@ -1,9 +1,12 @@
 package views;
 
 import components.Button.BackButton;
+import config.CurrentUser;
 import dto.response.QuizDataResponse.Answer;
 import dto.response.QuizDataResponse.Question;
 import dto.response.QuizDataResponse.QuizData;
+import entites.ScoreEntity;
+import service.ScoreService;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -31,9 +34,10 @@ public class QuizView extends JPanel {
     private Timer timer;
     private int remainingSeconds;
 
+    private ScoreService scoreService;
 
     public QuizView(QuizData quizData) {
-
+        scoreService = new ScoreService();
         setLayout(new BorderLayout());
 
         remainingSeconds = quizData.questionCount() * 30;
@@ -326,7 +330,19 @@ public class QuizView extends JPanel {
             }
         }
 
-        JOptionPane.showMessageDialog(this, "Score: " + correct + "/" + quizData.questions().size());
+        ScoreEntity score = new ScoreEntity.Builder()
+                .score(correct)
+                .quizId(quizData.id())
+                .userId(CurrentUser.getInstance().getCurrentUserId())
+                .build();
+
+        var success = scoreService.createScore(score);
+
+        if (success){
+            JOptionPane.showMessageDialog(this, "Score: " + correct + "/" + quizData.questions().size());
+        } else {
+            JOptionPane.showMessageDialog(this, "Something gone wrong");
+        }
 
         finishButton.setEnabled(false);
         pauseButton.setEnabled(false);

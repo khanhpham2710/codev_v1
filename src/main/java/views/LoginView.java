@@ -2,13 +2,16 @@ package views;
 
 import app.AppManager;
 import com.formdev.flatlaf.FlatClientProperties;
+import config.CurrentUser;
 import config.Setting;
 import config.Storage;
-import config.ThemeConfig;
-import enums.ETheme;
+import dto.UserDTO;
+import entites.UserEntity;
 import helpers.PasswordHelper;
 import helpers.TokenHelper;
+import mapper.UserMapper;
 import net.miginfocom.swing.MigLayout;
+import service.UserService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,8 +28,11 @@ public class LoginView extends JPanel {
     Setting setting = Setting.getInstance();
     Storage storage = Storage.getInstance();
 
+    private final UserService userService;
+
     public LoginView() {
         init();
+        this.userService = new UserService();
     }
 
     private void init() {
@@ -87,17 +93,21 @@ public class LoginView extends JPanel {
                 return;
             }
 
-            if (!username.equals(storage.getUserName())) {
+            Optional<UserEntity> userEntity = userService.findByUsername(username);
+
+            if (userEntity.isEmpty()){
                 JOptionPane.showMessageDialog(
                         this,
-                        "Invalid username or password",
+                        "Username or email not found",
                         "Login Error",
                         JOptionPane.ERROR_MESSAGE
                 );
                 return;
             }
 
-            if (!PasswordHelper.matches(password, storage.getPasswordHash())) {
+            UserEntity user = userEntity.get();
+
+            if (!PasswordHelper.matches(password, user.getPassWord())) {
                 JOptionPane.showMessageDialog(
                         this,
                         "Invalid username or password",
@@ -113,14 +123,16 @@ public class LoginView extends JPanel {
                 storage.setToken(null);
             }
 
-            storage.setUserName(username);
-
             JOptionPane.showMessageDialog(
                     this,
                     "Login successful"
             );
 
             storage.setRememberMe(chRememberMe.isSelected());
+
+            UserDTO userDTO = UserMapper.toDTO(user);
+
+            CurrentUser.getInstance().login(userDTO);
 
             AppManager.getInstance().changeView(new CategoryView());
         });

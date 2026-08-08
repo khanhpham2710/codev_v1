@@ -2,17 +2,20 @@ package views;
 
 import app.AppManager;
 import com.formdev.flatlaf.FlatClientProperties;
+import config.CurrentUser;
 import config.Setting;
 import config.Storage;
-import config.ThemeConfig;
-import enums.ETheme;
+import dto.UserDTO;
+import entites.UserEntity;
+import enums.EGender;
 import helpers.PasswordHelper;
 import helpers.TokenHelper;
 import net.miginfocom.swing.MigLayout;
+import service.UserService;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Set;
+import java.util.UUID;
 
 public class RegisterView extends JPanel {
     JPanel registerPanel;
@@ -31,8 +34,11 @@ public class RegisterView extends JPanel {
     Setting setting = Setting.getInstance();
     Storage storage = Storage.getInstance();
 
+    private final UserService userService;
+
     public RegisterView() {
         init();
+        this.userService = new UserService();
     }
 
     private void init() {
@@ -70,7 +76,6 @@ public class RegisterView extends JPanel {
 
             if (isMatchPassword()) {
                 storage.setUserName(username);
-                storage.setPasswordHash(PasswordHelper.hashPassword(txtPassword.getPassword()));
 
                 if (storage.getRememberMe()) {
                     storage.setToken(TokenHelper.generateAccessToken());
@@ -78,12 +83,32 @@ public class RegisterView extends JPanel {
                     storage.setToken(null);
                 }
 
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Signup successful"
-                );
+                UserEntity userEntity = new UserEntity.Builder()
+                        .id(UUID.randomUUID())
+                        .userName(username)
+                        .passWord(PasswordHelper.hashPassword(txtPassword.getPassword()))
+                        .gender(jrMale.isSelected() ? EGender.MALE : EGender.FEMALE)
+                        .firstName(txtFirstName.getText())
+                        .lastName(txtLastName.getText())
+                        .build();
 
-                AppManager.getInstance().changeView(new CategoryView());
+                UserDTO userDTO = userService.create(userEntity);
+
+                if (userDTO != null){
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Signup successful"
+                    );
+
+                    CurrentUser.getInstance().login(userDTO);
+
+                    AppManager.getInstance().changeView(new CategoryView());
+                } else {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Signup error"
+                    );
+                }
             } else {
                 JOptionPane.showMessageDialog(
                         this,
