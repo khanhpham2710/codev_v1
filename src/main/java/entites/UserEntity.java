@@ -2,6 +2,7 @@ package entites;
 
 import enums.EGender;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public class UserEntity {
@@ -14,6 +15,23 @@ public class UserEntity {
     private String firstName;
     private String lastName;
 
+    private final Instant createdAt = Instant.now();
+
+    private UserEntity(
+            UUID id,
+            String userName,
+            String passWord,
+            EGender gender,
+            String firstName,
+            String lastName
+    ) {
+        this.id = id;
+        this.userName = userName;
+        this.passWord = passWord;
+        this.gender = gender;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 
     private UserEntity(
             String userName,
@@ -21,46 +39,17 @@ public class UserEntity {
             EGender gender,
             String firstName,
             String lastName
-    ){
-
+    ) {
         this.userName = userName;
         this.passWord = passWord;
         this.gender = gender;
         this.firstName = firstName;
         this.lastName = lastName;
-
-        validate();
     }
-
-
-    private void validate(){
-
-        if(userName == null || userName.isBlank()){
-            throw new IllegalArgumentException(
-                    "Username is required"
-            );
-        }
-
-
-        if(passWord == null || passWord.isBlank()){
-            throw new IllegalArgumentException(
-                    "Password is required"
-            );
-        }
-
-
-        if(userName.length() < 4){
-            throw new IllegalArgumentException(
-                    "Username min 4 characters"
-            );
-        }
-
-    }
-
 
 
     public static class Builder {
-
+        private UUID id;
 
         private String userName;
 
@@ -72,9 +61,12 @@ public class UserEntity {
 
         private String lastName;
 
+        public Builder id(UUID id) {
+            this.id = id;
+            return this;
+        }
 
-
-        public Builder userName(String userName){
+        public Builder userName(String userName) {
 
             this.userName = userName;
 
@@ -82,7 +74,7 @@ public class UserEntity {
         }
 
 
-        public Builder passWord(String passWord){
+        public Builder passWord(String passWord) {
 
             this.passWord = passWord;
 
@@ -90,7 +82,7 @@ public class UserEntity {
         }
 
 
-        public Builder gender(EGender gender){
+        public Builder gender(EGender gender) {
 
             this.gender = gender;
 
@@ -98,7 +90,7 @@ public class UserEntity {
         }
 
 
-        public Builder firstName(String firstName){
+        public Builder firstName(String firstName) {
 
             this.firstName = firstName;
 
@@ -106,7 +98,7 @@ public class UserEntity {
         }
 
 
-        public Builder lastName(String lastName){
+        public Builder lastName(String lastName) {
 
             this.lastName = lastName;
 
@@ -114,10 +106,10 @@ public class UserEntity {
         }
 
 
-
-        public UserEntity build(){
+        public UserEntity build() {
 
             return new UserEntity(
+                    id,
                     userName,
                     passWord,
                     gender,
@@ -125,10 +117,15 @@ public class UserEntity {
                     lastName
             );
         }
-
     }
 
+    public UUID getId() {
+        return id;
+    }
 
+    public void setId(UUID id){
+        this.id = id;
+    }
 
     public String getUserName() {
         return userName;

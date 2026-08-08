@@ -15,9 +15,7 @@ public class UserMapper {
 
         dto.setUserName(userEntity.getUserName());
 
-        dto.setPassWord(userEntity.getPassWord());
-
-        dto.setGender(userEntity.getGender().name());
+        dto.setGender(userEntity.getGender());
 
         dto.setFirstName(userEntity.getFirstName());
 
@@ -36,8 +34,7 @@ public class UserMapper {
 
         return new UserEntity.Builder()
                 .userName(dto.getUserName())
-                .passWord(dto.getPassWord())
-                .gender(convertGender(dto.getGender()))
+                .gender(dto.getGender())
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
                 .build();

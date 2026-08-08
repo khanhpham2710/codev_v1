@@ -5,20 +5,21 @@ import entites.UserEntity;
 import mapper.UserMapper;
 import respositories.UserRepository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class UserService {
     private final UserRepository repository;
 
-    public UserService(UserRepository repository) {
-        this.repository = repository;
+    public UserService() {
+        this.repository = new UserRepository();
     }
 
-    public boolean create(UserDTO dto) {
-
-        UserEntity entity = UserMapper.toEntity(dto);
-
-        return repository.save(entity);
+    public UserDTO create(UserEntity entity) {
+        if (repository.save(entity)) {
+            return UserMapper.toDTO(entity);
+        }
+        return null;
     }
 
     public boolean update(UserDTO dto) {
@@ -29,12 +30,17 @@ public class UserService {
     }
 
     public boolean delete(UUID userId) throws Exception {
-        UserEntity entity = repository.findById(userId);
+        Optional<UserEntity> entity = repository.findById(userId);
 
-        if (entity != null){
+        if (entity.isPresent()){
             return repository.delete(userId);
         } else {
             throw new Exception("User not found");
         }
+    }
+
+    public Optional<UserEntity> findByUsername(String userName){
+
+        return repository.findByUsername(userName);
     }
 }

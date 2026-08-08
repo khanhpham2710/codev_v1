@@ -1,19 +1,25 @@
 package dto;
 
-public class UserDTO {
+import enums.EGender;
 
+import java.util.UUID;
+
+public class UserDTO {
+    private UUID id;
 
     private String userName;
 
-    private String passWord;
-
-    private String gender;
+    private EGender gender;
 
     private String firstName;
 
     private String lastName;
 
+    public UUID getId(){
+        return id;
+    }
 
+    public void setId(UUID userId) { this.id = userId; };
 
     public String getUserName() {
         return userName;
@@ -25,22 +31,12 @@ public class UserDTO {
     }
 
 
-    public String getPassWord() {
-        return passWord;
-    }
-
-
-    public void setPassWord(String passWord) {
-        this.passWord = passWord;
-    }
-
-
-    public String getGender() {
+    public EGender getGender() {
         return gender;
     }
 
 
-    public void setGender(String gender) {
+    public void setGender(EGender gender) {
         this.gender = gender;
     }
 
