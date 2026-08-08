@@ -1,6 +1,8 @@
 package service;
 
+import dto.ScoreDTO;
 import entites.ScoreEntity;
+import mapper.ScoreMapper;
 import respositories.ScoreRepository;
 
 import java.util.List;
@@ -18,7 +20,7 @@ public class ScoreService {
         return scoreRepository.save(score);
     }
 
-    public List<ScoreEntity> getScoresByUserId(UUID userId) {
-        return scoreRepository.findByUserId(userId);
+    public List<ScoreDTO> getScoresByUserId(UUID userId) {
+        return scoreRepository.findByUserId(userId).stream().map(ScoreMapper::toDTO).toList();
     }
 }
