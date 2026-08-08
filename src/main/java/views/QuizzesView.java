@@ -4,19 +4,20 @@ import app.AppManager;
 import components.Button.BackButton;
 import components.Dropdown.Dropdown;
 import components.Pagination.Pagination;
+import config.CurrentUser;
+import dto.ScoreDTO;
 import dto.response.*;
 import dto.response.CategoriesResponse.*;
 import enums.EDifficulty;
 import service.QuizService;
+import service.ScoreService;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class QuizzesView extends JPanel {
 
@@ -29,11 +30,25 @@ public class QuizzesView extends JPanel {
 
     private static final int LIMIT = 10;
 
+    private final ScoreService scoreService;
+    private List<ScoreDTO> scoreDTOS = new ArrayList<>();
+
     public QuizzesView(Category category, SubCategory selectedCategory) {
 
         setLayout(new BorderLayout(10, 10));
 
+        scoreService = new ScoreService();
         quizService = new QuizService();
+
+        UUID currentUserId = CurrentUser.getInstance().getCurrentUserId();
+
+        if (currentUserId != null) {
+            try {
+                scoreDTOS = scoreService.getScoresByUserId(currentUserId);
+            } catch (IllegalArgumentException e) {
+                scoreDTOS = Collections.emptyList();
+            }
+        }
 
         JPanel filterPanel = new JPanel(new BorderLayout());
 
@@ -186,13 +201,24 @@ public class QuizzesView extends JPanel {
                 title.getFont().deriveFont(Font.BOLD,16)
         );
 
-        JLabel info = new JLabel(
-                "Difficulty: "
-                        + quiz.difficulty()
-                        + " | Questions: "
-                        + quiz.questionCount()
-        );
+        List<ScoreDTO> scores = scoreDTOS.stream()
+                .filter(q -> quiz.id() != null && quiz.id().equals(q.getQuizId())).toList();
 
+        ScoreDTO highestScore = scores.stream()
+                .max(Comparator.comparing(ScoreDTO::getScore))
+                .orElse(null);
+
+        String infoText = "Difficulty: "
+                + quiz.difficulty()
+                + " | Questions: "
+                + quiz.questionCount();
+
+        if (highestScore != null){
+            infoText = infoText + " Highest score: " + highestScore.getScore()
+                    + " | Total try: " + scores.size();
+        }
+
+        JLabel info = new JLabel(infoText);
 
         panel.add(title, BorderLayout.NORTH);
         panel.add(info, BorderLayout.CENTER);
