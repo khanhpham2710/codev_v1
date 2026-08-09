@@ -15,6 +15,7 @@ import service.UserService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
 import java.util.UUID;
 
 public class RegisterView extends JPanel {
@@ -81,6 +82,17 @@ public class RegisterView extends JPanel {
                     storage.setToken(TokenHelper.generateAccessToken());
                 } else {
                     storage.setToken(null);
+                }
+
+                Optional<UserEntity> exisitngUser = userService.findByUsername(username);
+
+                if (exisitngUser.isPresent()){
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Username/email existed"
+                    );
+
+                    return;
                 }
 
                 UserEntity userEntity = new UserEntity.Builder()
