@@ -1,5 +1,6 @@
 package service;
 
+import app.CacheManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.ConfigProperties;
 import dto.response.ResponseWrapper;
@@ -19,6 +20,7 @@ public abstract class BaseService {
 
     protected final HttpClient httpClient;
     protected final ObjectMapper objectMapper;
+    protected final CacheManager cacheManager = CacheManager.getInstance();
 
     protected BaseService(HttpClient httpClient, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
@@ -67,7 +69,7 @@ public abstract class BaseService {
         return ResponseWrapper.failure();
     }
 
-    protected <T> ResponseWrapper<T> get(
+    private <T> ResponseWrapper<T> get(
             String url,
             Class<T> responseType,
             Map<String, String> params,
@@ -75,6 +77,14 @@ public abstract class BaseService {
     ) {
         if (url == null || url.isBlank()) {
             return ResponseWrapper.failure();
+        }
+
+        String cacheKey = buildCacheKey(url, params);
+
+        var cacheResponse = cacheManager.get(cacheKey);
+
+        if (cacheResponse != null){
+            return (ResponseWrapper<T>) cacheResponse;
         }
 
         params = params == null ? Map.of() : params;
@@ -88,7 +98,13 @@ public abstract class BaseService {
 
         headers.forEach(builder::header);
 
-        return send(builder.build(), responseType);
+        var result = send(builder.build(), responseType);
+
+        if (result.isSuccess()){
+            cacheManager.put(cacheKey, result);
+        }
+
+        return result;
     }
 
     protected <T> ResponseWrapper<T> get(String url, Class<T> responseType) {
@@ -146,5 +162,25 @@ public abstract class BaseService {
                 URL: %s
                 Reason: %s
                 """, method, url, e.getMessage());
+    }
+
+    private String buildCacheKey(String url, Map<String, String> params) {
+        if (url == null) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder(url);
+
+        if (params != null && !params.isEmpty()) {
+            params.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> sb
+                            .append('|')
+                            .append(entry.getKey())
+                            .append('=')
+                            .append(entry.getValue()));
+        }
+
+        return sb.toString();
     }
 }
