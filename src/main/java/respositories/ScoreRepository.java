@@ -35,9 +35,18 @@ public class ScoreRepository {
     }
 
     public List<ScoreEntity> findByUserId(UUID userId) {
+        try {
+            return findByUserIdOrThrow(userId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public List<ScoreEntity> findByUserIdOrThrow(UUID userId) throws SQLException {
         List<ScoreEntity> scores = new ArrayList<>();
 
-        String sql = "SELECT * FROM scores WHERE user_id = ?";
+        String sql = "SELECT * FROM scores WHERE user_id = ? ORDER BY created_at DESC";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -52,13 +61,12 @@ public class ScoreRepository {
                         .quizId(rs.getString("quiz_id"))
                         .userId(UUID.fromString(rs.getString("user_id")))
                         .score(rs.getInt("score"))
+                        .createdAt(rs.getTimestamp("created_at").toInstant())
                         .build();
 
                 scores.add(score);
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
 
         return scores;
