@@ -12,10 +12,6 @@ import java.util.UUID;
 
 public class UserRepository {
     public boolean save(UserEntity user) {
-        if (user.getId() == null) {
-            user.setId(UUID.randomUUID());
-        }
-
         String sql = """
             INSERT INTO users
             (id, username, password, gender, first_name, last_name)

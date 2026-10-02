@@ -3,16 +3,13 @@ package entites;
 import java.time.Instant;
 import java.util.UUID;
 
-public class ScoreEntity {
-
-    private final UUID id;
+public class ScoreEntity extends BaseEntity {
     private final String quizId;
-    private final Instant createdAt = Instant.now();
     private final UUID userId;
     private final Integer score;
 
-    private ScoreEntity(UUID id, String quizId, UUID userId, Integer score) {
-        this.id = (id != null) ? id : UUID.randomUUID();
+    private ScoreEntity(UUID id, Instant createdAt, String quizId, UUID userId, Integer score) {
+        super(id, createdAt);
         this.quizId = quizId;
         this.userId = userId;
         this.score = (score != null) ? score : 0;
@@ -42,9 +39,16 @@ public class ScoreEntity {
     public static class Builder {
 
         private UUID id;
+        private Instant createdAt;
+        private Instant updatedAt;
         private String quizId;
         private UUID userId;
         private Integer score;
+
+        public Builder createdAt(Instant createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
 
         public Builder id(UUID id) {
             this.id = id;
@@ -67,27 +71,19 @@ public class ScoreEntity {
         }
 
         public ScoreEntity build() {
-            return new ScoreEntity(id, quizId, userId, score);
+            return new ScoreEntity(id, createdAt, quizId, userId, score);
         }
-    }
-
-    public UUID getId(){
-        return id;
     }
 
     public String getQuizId() {
         return quizId;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
     public UUID getUserId() {
         return userId;
     }
 
-    public Integer getScore(){
+    public Integer getScore() {
         return score;
     }
 }
