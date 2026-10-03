@@ -11,6 +11,16 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class UserRepository {
+    public Optional<UserEntity> findByIdOrThrow(UUID userId) throws SQLException {
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT * FROM users WHERE id = ?")) {
+            ps.setString(1, userId.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                return mapDataToEntity(rs);
+            }
+        }
+    }
+
     public boolean save(UserEntity user) {
         String sql = """
             INSERT INTO users
@@ -92,6 +102,29 @@ public class UserRepository {
         }
 
         return false;
+    }
+
+    public boolean updateProfile(UUID userId, String firstName, String lastName, EGender gender)
+            throws SQLException {
+        String sql = "UPDATE users SET first_name = ?, last_name = ?, gender = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, firstName);
+            ps.setString(2, lastName);
+            ps.setString(3, gender.name());
+            ps.setString(4, userId.toString());
+            return ps.executeUpdate() == 1;
+        }
+    }
+
+    public boolean changePassword(UUID userId, String previousHash, String newHash) throws SQLException {
+        // Compare the previous hash to avoid overwriting a concurrent password change.
+        String sql = "UPDATE users SET password = ? WHERE id = ? AND password = ?";
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newHash);
+            ps.setString(2, userId.toString());
+            ps.setString(3, previousHash);
+            return ps.executeUpdate() == 1;
+        }
     }
 
     public boolean delete(UUID userId) {
