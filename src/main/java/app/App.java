@@ -4,15 +4,14 @@ import com.formdev.flatlaf.fonts.jetbrains_mono.FlatJetBrainsMonoFont;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import components.Button.BaseButton;
+import config.CurrentUser;
 import config.Setting;
 import config.Storage;
 import config.ThemeConfig;
 import entites.FileNode;
 import enums.ETheme;
 import helpers.LanguageChecker;
-import views.EditorView;
-import views.ProjectView;
-import views.WelcomeView;
+import views.*;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicArrowButton;
@@ -339,6 +338,34 @@ public class App extends JFrame {
         repaint();
 
         setVisible(true);
+
+        JMenu accountMenu = getAccountMenu();
+        menuBar.add(accountMenu);
+    }
+
+    private JMenu getAccountMenu() {
+        JMenu accountMenu = new JMenu("My account");
+        JMenuItem profileItem = new JMenuItem("My profile");
+        JMenuItem statisticsItem = new JMenuItem("Learning statistics");
+        profileItem.addActionListener(e -> {
+            if (CurrentUser.getInstance().isLoggedIn()) {
+                AppManager.getInstance().changeView(new ProfileView());
+            } else {
+                JOptionPane.showMessageDialog(this, "Please log in to view your profile.");
+                AppManager.getInstance().changeView(new LoginView());
+            }
+        });
+        statisticsItem.addActionListener(e -> {
+            if (CurrentUser.getInstance().isLoggedIn()) {
+                AppManager.getInstance().changeView(new LearningStatisticsView());
+            } else {
+                JOptionPane.showMessageDialog(this, "Please log in to view your statistics.");
+                AppManager.getInstance().changeView(new LoginView());
+            }
+        });
+        accountMenu.add(profileItem);
+        accountMenu.add(statisticsItem);
+        return accountMenu;
     }
 
     public EditorView getEditorView(){
