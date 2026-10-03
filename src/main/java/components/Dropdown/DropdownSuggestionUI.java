@@ -61,7 +61,7 @@ public class DropdownSuggestionUI extends BasicComboBoxUI {
                     text = e == null ? "" : e.toString();
                 }
                 JLabel label = new JLabel(text);
-                label.setFont(comboBox.getFont());
+                label.setFont(jlist.getFont());
                 if (i >= 0) {
                     label.setBorder(new EmptyBorder(5, 8, 5, 8));
                 } else {

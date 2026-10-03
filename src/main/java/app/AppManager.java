@@ -72,15 +72,13 @@ public class AppManager {
     }
 
     public void login(UserDTO userDTO){
-        app.addAccountMenu();
-
         Storage storage = Storage.getInstance();
 
         String userName = userDTO.getUserName();
         if (userName != null) storage.setUserName(userDTO.getUserName());
 
-
         CurrentUser.getInstance().login(userDTO);
+        app.addAccountMenu();
     }
 
     public void signOut() {

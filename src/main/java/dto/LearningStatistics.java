@@ -9,5 +9,5 @@ public record LearningStatistics(long attempts, long quizzes, long correctAnswer
         days = List.copyOf(days);
     }
 
-    public record DailyResult(LocalDate date, long attempts, long quizzes, long correctAnswers) {}
+    public record DailyResult(LocalDate date, long attempts, String quizId, long correctAnswers) {}
 }
