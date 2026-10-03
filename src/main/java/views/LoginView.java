@@ -130,9 +130,7 @@ public class LoginView extends JPanel {
 
             storage.setRememberMe(chRememberMe.isSelected());
 
-            UserDTO userDTO = UserMapper.toDTO(user);
-
-            CurrentUser.getInstance().login(userDTO);
+            AppManager.getInstance().login(user);
 
             AppManager.getInstance().changeView(new CategoryView());
         });
