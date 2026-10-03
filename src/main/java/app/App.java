@@ -42,6 +42,8 @@ public class App extends JFrame {
             autoSaveItem,
             exitItem;
 
+    private JMenu accountMenu;
+
     Storage storage = Storage.getInstance();
     Setting setting = Setting.getInstance();
 
@@ -101,7 +103,7 @@ public class App extends JFrame {
         openTerminalButton.addActionListener(e -> {
             try {
                 if (os.contains("win")) {
-                    pb = new ProcessBuilder("cmd" , "/c" , "start" , "powershell.exe");
+                    pb = new ProcessBuilder("cmd", "/c", "start", "powershell.exe");
                 } else if (os.contains("mac")) {
                     pb = new ProcessBuilder("open", "-a", "Terminal");
                 } else if (os.contains("nix") || os.contains("nux") || os.contains("bsd")) {
@@ -157,8 +159,8 @@ public class App extends JFrame {
                 g2.drawRoundRect(0, 0, w - 1, h - 1, arc, arc);
 
                 // Arrow
-                int[] xPoints = { w / 3, w * 2 / 3, w / 3 };
-                int[] yPoints = { h / 4, h / 2, h * 3 / 4 };
+                int[] xPoints = {w / 3, w * 2 / 3, w / 3};
+                int[] yPoints = {h / 4, h / 2, h * 3 / 4};
 
                 g2.setColor(new Color(30, 126, 248));
                 g2.fillPolygon(xPoints, yPoints, 3);
@@ -235,8 +237,7 @@ public class App extends JFrame {
                 autoSaveItem.setText("Auto save : Off");
                 saveFileButton.setVisible(true);
                 autoSaveTimer.stop();
-            }
-            else {
+            } else {
                 autoSave = true;
                 autoSaveItem.setText("Auto save : On");
                 saveFileButton.setVisible(false);
@@ -279,6 +280,7 @@ public class App extends JFrame {
 
         AppManager.getInstance().initApplication(this);
     }
+
     public void addComponent() {
         projectView.addComponent();
 
@@ -308,19 +310,19 @@ public class App extends JFrame {
 
         boolean isNodeInstalled = LanguageChecker.isNodeInstalled();
 
-        if (isNodeInstalled){
+        if (isNodeInstalled) {
             languageItem.add(jsItem);
         }
 
         boolean isJavaInstalled = LanguageChecker.isJavaInstalled();
 
-        if (isJavaInstalled){
+        if (isJavaInstalled) {
             languageItem.add(javaItem);
         }
 
         boolean isPythonInstalled = LanguageChecker.isPythonInstalled();
 
-        if (isPythonInstalled){
+        if (isPythonInstalled) {
             languageItem.add(pythonItem);
         }
 
@@ -339,40 +341,75 @@ public class App extends JFrame {
 
         setVisible(true);
 
-        JMenu accountMenu = getAccountMenu();
-        menuBar.add(accountMenu);
+        addAccountMenu();
     }
 
-    private JMenu getAccountMenu() {
-        JMenu accountMenu = new JMenu("My account");
+    public void addAccountMenu() {
+        if (!CurrentUser.getInstance().isLoggedIn()) {
+            return;
+        }
+
+        if (accountMenu != null) {
+            return;
+        }
+
+        accountMenu = new JMenu("My account");
         JMenuItem profileItem = new JMenuItem("My profile");
         JMenuItem statisticsItem = new JMenuItem("Learning statistics");
-        profileItem.addActionListener(e -> {
-            if (CurrentUser.getInstance().isLoggedIn()) {
-                AppManager.getInstance().changeView(new ProfileView());
-            } else {
-                JOptionPane.showMessageDialog(this, "Please log in to view your profile.");
-                AppManager.getInstance().changeView(new LoginView());
-            }
-        });
-        statisticsItem.addActionListener(e -> {
-            if (CurrentUser.getInstance().isLoggedIn()) {
-                AppManager.getInstance().changeView(new LearningStatisticsView());
-            } else {
-                JOptionPane.showMessageDialog(this, "Please log in to view your statistics.");
-                AppManager.getInstance().changeView(new LoginView());
-            }
-        });
+        profileItem.addActionListener(e ->
+                LoginCheck(() ->
+                        AppManager.getInstance().changeView(new ProfileView())
+                )
+        );
+
+        statisticsItem.addActionListener(e ->
+                LoginCheck(() ->
+                        AppManager.getInstance().changeView(new LearningStatisticsView())
+                )
+        );
+
         accountMenu.add(profileItem);
         accountMenu.add(statisticsItem);
-        return accountMenu;
+
+        JMenuItem categoryItem = new JMenuItem("Categories");
+        categoryItem.addActionListener(e ->
+                LoginCheck(() ->
+                        AppManager.getInstance().changeView(new CategoryView())
+                )
+        );
+
+        accountMenu.add(categoryItem);
+
+        accountMenu.addSeparator();
+
+
+        JMenuItem logoutItem = new JMenuItem("Log out");
+        logoutItem.addActionListener(e -> logout());
+
+        accountMenu.add(logoutItem);
+
+        menuBar.add(accountMenu);
+        accountMenu.setVisible(true);
+
+        menuBar.revalidate();
+        menuBar.repaint();
     }
 
-    public EditorView getEditorView(){
+    private void LoginCheck(Runnable callback) {
+        if (!CurrentUser.getInstance().isLoggedIn()) {
+            JOptionPane.showMessageDialog(this, "Please log in to continue.");
+            AppManager.getInstance().changeView(new LoginView());
+            return;
+        }
+
+        callback.run();
+    }
+
+    public EditorView getEditorView() {
         return editorView;
     }
 
-    public JButton getSaveFileButton(){
+    public JButton getSaveFileButton() {
         return saveFileButton;
     }
 
@@ -380,11 +417,11 @@ public class App extends JFrame {
         return runFileButton;
     }
 
-    public void setCurrentFileParentPath(String currentFileParentPath){
+    public void setCurrentFileParentPath(String currentFileParentPath) {
         this.currentFileParentPath = currentFileParentPath;
     }
 
-    private void setColorScheme(ETheme theme){
+    private void setColorScheme(ETheme theme) {
         editorView.setColorScheme(theme);
         projectView.setColorTheme(theme);
 
@@ -399,7 +436,7 @@ public class App extends JFrame {
         this.setExtendedState(MAXIMIZED_BOTH);
     }
 
-    private void toggleDarkTheme(boolean isDarkTheme){
+    private void toggleDarkTheme(boolean isDarkTheme) {
         ThemeConfig themeConfig = ThemeConfig.getInstance();
 
         try {
@@ -412,5 +449,18 @@ public class App extends JFrame {
         } catch (UnsupportedLookAndFeelException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+
+    private void logout() {
+        if (accountMenu != null) {
+            accountMenu.removeAll();
+            accountMenu.setVisible(false);
+        }
+
+        AppManager.getInstance().signOut();
+
+        menuBar.revalidate();
+        menuBar.repaint();
     }
 }

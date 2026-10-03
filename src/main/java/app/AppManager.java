@@ -1,5 +1,12 @@
 package app;
 
+import config.CurrentUser;
+import config.Storage;
+import dto.UserDTO;
+import entites.UserEntity;
+import mapper.UserMapper;
+import views.WelcomeView;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Stack;
@@ -56,5 +63,41 @@ public class AppManager {
 
     public boolean canGoBack() {
         return !history.isEmpty();
+    }
+
+    public void login(UserEntity userEntity){
+        UserDTO userDTO = UserMapper.toDTO(userEntity);
+
+        login(userDTO);
+    }
+
+    public void login(UserDTO userDTO){
+        app.addAccountMenu();
+
+        Storage storage = Storage.getInstance();
+
+        String userName = userDTO.getUserName();
+        if (userName != null) storage.setUserName(userDTO.getUserName());
+
+
+        CurrentUser.getInstance().login(userDTO);
+    }
+
+    public void signOut() {
+        CurrentUser.getInstance().logout();
+
+        Storage storage = Storage.getInstance();
+        storage.setToken(null);
+        storage.setUserName(null);
+        storage.save();
+
+        EventQueue.invokeLater(() -> {
+            history.clear();
+            currentView = new WelcomeView(app);
+
+            app.setContentPane(currentView);
+            app.revalidate();
+            app.repaint();
+        });
     }
 }

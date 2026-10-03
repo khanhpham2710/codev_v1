@@ -10,10 +10,12 @@ import service.LearningStatisticsService;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.UUID;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class LearningStatisticsView extends JPanel {
@@ -21,8 +23,7 @@ public class LearningStatisticsView extends JPanel {
     private final LearningStatisticsService service;
     LocalDateModel formModel = new LocalDateModel(), toModel = new LocalDateModel();
     private final JDatePicker from = new JDatePicker(formModel), to = new JDatePicker(toModel);
-    private final JLabel attempts = new JLabel("Attempts: -"), quizzes = new JLabel("Quizzes: -"),
-            correct = new JLabel("Correct answers: -"), status = new JLabel(" ");
+    private final JLabel status = new JLabel(" ");
     private final JButton refreshButton = new JButton("Refresh");
     private final DefaultTableModel rows = new DefaultTableModel(
             new Object[]{"Date", "Attempts", "Distinct quizzes", "Correct answers"}, 0) {
@@ -61,15 +62,14 @@ public class LearningStatisticsView extends JPanel {
         filter.add(to);
         filter.add(refreshButton);
         top.add(filter);
-        JPanel summary = new JPanel(new GridLayout(1, 3, 12, 0));
-        summary.add(attempts);
-        summary.add(quizzes);
-        summary.add(correct);
-        top.add(summary);
         add(top, BorderLayout.NORTH);
         JTable table = new JTable(rows);
         table.setRowHeight(28);
-        table.setAutoCreateRowSorter(true);
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(rows);
+        sorter.setSortsOnUpdates(true);
+        sorter.setSortKeys(List.of(new RowSorter.SortKey(0, SortOrder.DESCENDING)));
+        table.setRowSorter(sorter);
+        table.getTableHeader().setToolTipText("Click a column header to sort ascending or descending");
         table.getTableHeader().setReorderingAllowed(false);
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setColumnHeaderView(table.getTableHeader());
@@ -105,9 +105,6 @@ public class LearningStatisticsView extends JPanel {
         to.setEnabled(false);
         status.setText("Loading statistics...");
         rows.setRowCount(0);
-        attempts.setText("Attempts: -");
-        quizzes.setText("Quizzes: -");
-        correct.setText("Correct answers: -");
         new SwingWorker<LearningStatistics, Void>() {
             @Override
             protected LearningStatistics doInBackground() throws Exception {
@@ -118,9 +115,6 @@ public class LearningStatisticsView extends JPanel {
             protected void done() {
                 try {
                     LearningStatistics data = get();
-                    attempts.setText("Attempts: " + data.attempts());
-                    quizzes.setText("Quizzes: " + data.quizzes());
-                    correct.setText("Correct answers: " + data.correctAnswers());
                     data.days().forEach(day -> rows.addRow(new Object[]{day.date().toString(),
                             day.attempts(), day.quizzes(), day.correctAnswers()}));
                     status.setText(data.attempts() == 0 ? "No saved results in this period."

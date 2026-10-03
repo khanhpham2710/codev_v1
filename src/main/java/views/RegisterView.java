@@ -2,7 +2,6 @@ package views;
 
 import app.AppManager;
 import com.formdev.flatlaf.FlatClientProperties;
-import config.CurrentUser;
 import config.Setting;
 import config.Storage;
 import dto.UserDTO;
@@ -84,9 +83,9 @@ public class RegisterView extends JPanel {
                     storage.setToken(null);
                 }
 
-                Optional<UserEntity> exisitngUser = userService.findByUsername(username);
+                Optional<UserEntity> existingUser = userService.findByUsername(username);
 
-                if (exisitngUser.isPresent()){
+                if (existingUser.isPresent()){
                     JOptionPane.showMessageDialog(
                             this,
                             "Username/email existed"
@@ -106,21 +105,14 @@ public class RegisterView extends JPanel {
 
                 UserDTO userDTO = userService.create(userEntity);
 
-                if (userDTO != null){
-                    JOptionPane.showMessageDialog(
-                            this,
-                            "Signup successful"
-                    );
+                AppManager.getInstance().login(userDTO);
 
-                    CurrentUser.getInstance().login(userDTO);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Signup successful"
+                );
 
-                    AppManager.getInstance().changeView(new CategoryView());
-                } else {
-                    JOptionPane.showMessageDialog(
-                            this,
-                            "Signup error"
-                    );
-                }
+                AppManager.getInstance().changeView(new CategoryView());
             } else {
                 JOptionPane.showMessageDialog(
                         this,
