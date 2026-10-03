@@ -26,7 +26,7 @@ public class LearningStatisticsView extends JPanel {
     private final JLabel status = new JLabel(" ");
     private final JButton refreshButton = new JButton("Refresh");
     private final DefaultTableModel rows = new DefaultTableModel(
-            new Object[]{"Date", "Attempts", "Distinct quizzes", "Correct answers"}, 0) {
+            new Object[]{"Date", "QuizId","Attempts", "Highest score"}, 0) {
         @Override
         public boolean isCellEditable(int row, int col) {
             return false;
@@ -116,7 +116,7 @@ public class LearningStatisticsView extends JPanel {
                 try {
                     LearningStatistics data = get();
                     data.days().forEach(day -> rows.addRow(new Object[]{day.date().toString(),
-                            day.attempts(), day.quizzes(), day.correctAnswers()}));
+                             day.quizId(), day.attempts(), day.correctAnswers()}));
                     status.setText(data.attempts() == 0 ? "No saved results in this period."
                             : "Loaded " + data.days().size() + " day(s). Repeated attempts are included.");
                 } catch (InterruptedException e) {
